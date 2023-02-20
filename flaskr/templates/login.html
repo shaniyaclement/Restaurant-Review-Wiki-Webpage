@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Log in</title>
+  </head>
+  <body>
+    {% if error %}
+    {% if show_popup %}
+        <div id="popup">
+            <h2>Error</h2>
+            <p>{{ error }}</p>
+            <button onclick="closePopup()">Close</button>
+        </div>
+        <script>
+            function closePopup() {
+                var popup = document.getElementById("popup");
+                popup.style.display = "none";
+            }
+        </script>
+    {% else %}
+        <p>{{ error }}</p>
+    {% endif %}
+    {% endif %}
+    <h1>Login</h1>
+    <form action="/authenticate" method="POST">
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username"><br><br>
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password"><br><br>
+      <input type="submit" value="Submit">
+    </form>
+  </body>
+</html>

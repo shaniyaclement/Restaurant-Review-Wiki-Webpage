@@ -1,5 +1,5 @@
 from flaskr import pages
-
+from flaskr.backend import Backend
 from flask import Flask
 
 import logging
@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.DEBUG)
 def create_app(test_config=None):
     # Create and configure the app.
     app = Flask(__name__, instance_relative_config=True)
-
+    backend = Backend()
     # This is the default secret key used for login sessions
     # By default the dev environment uses the key 'dev'
     app.config.from_mapping(
@@ -28,5 +28,5 @@ def create_app(test_config=None):
 
     # TODO(Project 1): Make additional modifications here for logging in, backends
     # and additional endpoints.
-    pages.make_endpoints(app)
+    pages.make_endpoints(app, backend)
     return app

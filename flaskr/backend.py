@@ -55,6 +55,7 @@ class Backend:
         #print(credentials, with_salt)
 
     def sign_in(self, username, password):
+        print("I'm here")
         '''
         Checking if a password  matches the bucket data once hashed
         '''
@@ -68,12 +69,20 @@ class Backend:
         except:
             return
 
+    def authenticate_user(self, username, password):
+        '''
+        This is what pages.py calls, an intermediary method for Auth
+        '''
+        if self.sign_in(username, password):
+            return {'success': True, 'message': 'Authentication successful.'}
+        else:
+            return {'success': False, 'message': 'Invalid username or password.'}
 
     def get_image(self,name):
         '''
         Retrieving an image from the bucket
         '''
-        cur_blob = self.wiki_content_bucket(f"images/{name}")
+        cur_blob = self.wiki_content_bucket.blob(f"images/{name}")
         if not cur_blob.exists():
             return None
         data = io.BytesIO()
