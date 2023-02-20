@@ -4,20 +4,31 @@
 <head>
     <head>
         <!-- TODO(Checkpoint Requirement 3): Change the title and content of your wiki.-->
-        <title>Dagi, Tomas, and Shaniya's Website</title>
+        <title>Little Niche Recomendations</title>
     </head>
 </head>
 
 <body>
-    <!-- TODO(Project 1): Implement routes. -->
-    <div>       
-        <!-- TODO(Checkpoint Requirement 3): Change the title and content of your wiki.-->
-        Hi! We are so excited to be getting started today :)
+    <nav>
+        <ul>
+            <h3><a href="/?username={{username}}">Home</a>&nbsp;&nbsp 
+            <a href="/pages">Pages</a>&nbsp &nbsp
+            <a href="/about">About</a>&nbsp &nbsp  | &nbsp
+            {% if username %}
+            {{username}} &nbsp |
+            <a href="/upload">Upload</a>&nbsp &nbsp
+            <a href="/logout">Logout</a>&nbsp &nbsp
+            {% else %}
+            <a href="/login">Login</a>&nbsp &nbsp
+            <a href="/signup">Sign Up</a>
+            {% endif %}
+            </h3>
+        </ul>
+    </nav>       
+        <h1>Welcome to Little Niche Recomendations!</h1>
         <br>
-        Click <a href="/sign_up">here</a> to sign up!
-        <br>
-        Click <a href="/log_in">here</a> to log in!
-    </div>
+        <p>Ever find yourself in a new city, super hungry, and looking for the best food? Ugh, not that touristy crap, you only trust the local salt of the earths. They always know where the best stuff is!</p> 
+        <p>Here you will find the some of the best diamonds in the rough restaurants for cities all over the world. Who knows, maybe you'll discover a new hidden gem right in your own backyard. New discoversies are always welcome!</p>
 </body>
 
 </html>

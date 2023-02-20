@@ -3,6 +3,7 @@ import hashlib
 import json
 import os
 import io
+import re  # for regex password validation
 from google.cloud import storage
 class Backend:
     '''
@@ -77,6 +78,20 @@ class Backend:
             return {'success': True, 'message': 'Authentication successful.'}
         else:
             return {'success': False, 'message': 'Invalid username or password.'}
+
+    def authenticate_new_user(self, username, password):
+        '''
+        This is what pages.py calls, an intermediary method for new user Auth Validation
+        '''
+        if len(username)<4:
+            return {'success': False, 'message': 'Username needs to be longer than four characters! Try again please.'}
+        r_check = r"^(?=.*\d)(?=.*[a-zA-Z]).{6,}$"  # Define the regular expression pattern
+        reg = re.compile(r_check)  # Compile the regular expression
+        valid = reg.match(password)
+        if not bool(valid):
+            return {'success': False, 'message': 'Password needs to include at least one number and be longer than 5 characters.'}
+        self.sign_up(username, password)
+        return {'success': True, 'message': 'New Account Created!'}
 
     def get_image(self,name):
         '''
