@@ -4,11 +4,11 @@
 <head>
     <head>
         <!-- TODO(Checkpoint Requirement 3): Change the title and content of your wiki.-->
-        <title>Little Niche Recomendations</title>
+        {% block page_name%}<title>Little Niche Recomendations</title>{%endblock%}
     </head>
 </head>
-
 <body>
+   {% block nav_bar %}
     <nav>
         <ul>
             <h3><a href="/?username={{username}}">Home</a>&nbsp;&nbsp 
@@ -24,11 +24,14 @@
             {% endif %}
             </h3>
         </ul>
-    </nav>       
+    </nav> 
+    {% endblock%}
+        {% block content %}
         <h1>Welcome to Little Niche Recomendations!</h1>
         <br>
         <p>Ever find yourself in a new city, super hungry, and looking for the best food? Ugh, not that touristy crap, you only trust the local salt of the earths. They always know where the best stuff is!</p> 
         <p>Here you will find the some of the best diamonds in the rough restaurants for cities all over the world. Who knows, maybe you'll discover a new hidden gem right in your own backyard. New discoversies are always welcome!</p>
+        {% endblock%}
 </body>
 
 </html>

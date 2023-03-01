@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for
 
 def make_endpoints(app, backend):
 
@@ -8,6 +8,11 @@ def make_endpoints(app, backend):
     def home():
         username = request.args.get('username', default="")
         return render_template('main.html', username=username)
+    
+    @app.route("/about")
+    def about():
+        #users = ['Tomas', 'Dagmawi', 'Shaniya']
+        return render_template('about.html')
 
     # TODO(Project 1): Implement additional routes according to the project requirements.
     @app.route("/signup")
@@ -43,3 +48,5 @@ def make_endpoints(app, backend):
     @app.route("/logout")
     def dashboard():
         return render_template('main.html', username='')
+
+    
