@@ -6,16 +6,15 @@
 
 
 
+
 {% block content %}
-
-<h3>About this Wiki</h3>
-
-
-
-
-
+<body>
+<h1>About Us</h1>
 <h3>Your Authors</h3>
-
-
-
+    <div class="images">
+        {% for name in image_names %}
+            <img src="https://storage.googleapis.com/about-us-pictures/{{name}}" alt="{{ name }}">
+        {% endfor %}
+    </div>
+</body>
 {% endblock %}

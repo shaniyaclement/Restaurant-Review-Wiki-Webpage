@@ -8,14 +8,14 @@
     </head>
 </head>
 <body>
-   {% block nav_bar %}
+    {%block nav_bar%}
     <nav>
         <ul>
             <h3><a href="/?username={{username}}">Home</a>&nbsp;&nbsp 
             <a href="/pages">Pages</a>&nbsp &nbsp
             <a href="/about">About</a>&nbsp &nbsp  | &nbsp
             {% if username %}
-            {{username}} &nbsp |
+            {{ username }} &nbsp |
             <a href="/upload">Upload</a>&nbsp &nbsp
             <a href="/logout">Logout</a>&nbsp &nbsp
             {% else %}
@@ -24,8 +24,9 @@
             {% endif %}
             </h3>
         </ul>
-    </nav> 
-    {% endblock%}
+    </nav>
+    {%endblock%}
+    
         {% block content %}
         <h1>Welcome to Little Niche Recomendations!</h1>
         <br>
