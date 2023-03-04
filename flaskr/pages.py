@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 
 def make_endpoints(app, backend):
 
@@ -22,6 +22,10 @@ def make_endpoints(app, backend):
     @app.route("/login", methods=["GET"])
     def log_in():
         return render_template('login.html')
+    
+    @app.route('/upload')  
+    def upload():  
+        return render_template("upload.html")    
 
     @app.route("/authenticate", methods=["POST"])
     def authenticate():
@@ -49,4 +53,16 @@ def make_endpoints(app, backend):
     def dashboard():
         return render_template('main.html', username='')
 
-    
+    @app.route('/authenticate_upload', methods = ['POST'])  
+    def authenticate_upload():  
+        if request.method == 'POST':
+            if 'file' not in request.files:
+                flash('No file part')
+                return redirect(request.url)  
+            file = request.files['file']
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            file.save(file.filename)
+            return home()
+ 
