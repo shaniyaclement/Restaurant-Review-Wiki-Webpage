@@ -16,7 +16,8 @@ class Backend:
         self.client = storage.Client(project='groupx-2023')
         self.wiki_content_bucket = self.client.get_bucket('wiki_contents_groupx')
         self.users_bucket = self.client.get_bucket('users_and_passwords_groupx')
-        
+        self.about_us_pictures = self.client.get_bucket('about-us-pictures')
+
     def get_wiki_page(self, name):
         '''
         Retrieving uploaded page from wiki_content_bucket
@@ -25,6 +26,15 @@ class Backend:
         if not cur_blob.exists():
             return None
         return cur_blob.download_as_text()
+    
+    def get_all_image_names(self):
+        try:
+            all_blobs = list(self.about_us_pictures.list_blobs())
+            names = [os.path.basename(blob.name) for blob in all_blobs]
+            return names
+        except Exception as e:
+            print(f"An error occurred while retrieving image names: {e}")
+            return []
 
     def get_all_page_names(self):
         '''
