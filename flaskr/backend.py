@@ -41,7 +41,7 @@ class Backend:
         '''
         all_blobs = self.wiki_content_bucket.list_blobs(prefix="pages/")
         names = [os.path.splitext(os.path.basename(blob.name))[0] for blob in all_blobs]
-        return names
+        return names[1:]
 
     def upload(self, content, name):
         '''
