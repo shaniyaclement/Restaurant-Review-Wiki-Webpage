@@ -1,4 +1,3 @@
-# TODO(Project 1): Implement Backend according to the requirements.
 import hashlib
 import json
 import os
