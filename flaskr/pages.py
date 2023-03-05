@@ -63,4 +63,17 @@ def make_endpoints(app, backend):
                 return redirect(request.url)
             file.save(file.filename)
             return home()
- 
+    @app.route('/pages')
+    def pages():
+        username = request.args.get('username', default="")
+        page_names = backend.get_all_page_names()
+        return render_template('index.html', page_names=page_names,username =username)
+        
+    @app.route('/pages/<page_name>')
+    def show_page(page_name):
+        username = request.args.get('username', default="")
+        # Fetch the text content from the GCS content bucket using the page name
+        text_content = backend.get_wiki_page(page_name)
+        if text_content is None:
+            abort(404)
+        return render_template('page.html', page_name=page_name, text_content=text_content,username = username)
