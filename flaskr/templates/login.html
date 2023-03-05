@@ -1,8 +1,13 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Log in</title>
-  </head>
+{% extends "main.html" %}
+
+{% block page_name %}
+<title>Login</title>
+{% endblock %}
+
+
+
+
+{% block content %}
   <body>
     {% if error %}
     {% if show_popup %}
@@ -30,4 +35,4 @@
       <input type="submit" value="Login">
     </form>
   </body>
-</html>
+{% endblock %}
