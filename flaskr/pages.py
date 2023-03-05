@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, abort, session
+from google.cloud import storage
 
 def make_endpoints(app, backend):
     # Flask uses the "app.route" decorator to call methods when users
@@ -18,6 +19,10 @@ def make_endpoints(app, backend):
         return render_template('about.html',image_names = image_names,username=username)
 
     # TODO(Project 1): Implement additional routes according to the project requirements.
+    @app.route("/pages")
+    def pages():
+        return render_template("pages.html")
+
     @app.route("/signup")
     def sign_up():
         return render_template('sign_up.html')
@@ -27,7 +32,8 @@ def make_endpoints(app, backend):
         return render_template('login.html')
     
     @app.route('/upload')  
-    def upload():  
+    def upload(): 
+
         return render_template("upload.html")    
 
     @app.route("/authenticate", methods=["POST"])
@@ -67,6 +73,13 @@ def make_endpoints(app, backend):
             if file.filename == '':
                 flash('No selected file')
                 return redirect(request.url)
-            file.save(file.filename)
-            return home()
+
+        storage_client = storage.Client()
+        bucket = storage_client.bucket("wiki_contents_groupx/images")
+        blob = bucket.blob(file.filename)
+
+        generation_match_precondition = 0
+
+        blob.upload_from_filename(file.filename, if_generation_match=generation_match_precondition)
+        return home()
  
