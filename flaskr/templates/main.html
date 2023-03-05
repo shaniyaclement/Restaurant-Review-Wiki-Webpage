@@ -3,7 +3,6 @@
 
 <head>
     <head>
-        <!-- TODO(Checkpoint Requirement 3): Change the title and content of your wiki.-->
         {% block page_name%}<title>Little Niche Recomendations</title>{%endblock%}
     </head>
 </head>
@@ -12,7 +11,7 @@
     <nav>
         <ul>
             <h3><a href="/?username={{username}}">Home</a>&nbsp;&nbsp 
-            <a href="/pages?username={{username}}">Pages</a>&nbsp &nbsp
+            <a href="/pages/?username={{username}}">Pages</a>&nbsp &nbsp
             <a href="/about?username={{username}}">About</a>&nbsp &nbsp  | &nbsp
             {% if username %}
             {{ username }} &nbsp |
