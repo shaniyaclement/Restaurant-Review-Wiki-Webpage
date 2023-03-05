@@ -1,8 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, abort, session
 
 def make_endpoints(app, backend):
-    # Flask uses the "app.route" decorator to call methods when users
-    # go to a specific route on the project's website.
     @app.route("/")
     def home():
         username = request.args.get('username', default="")
@@ -10,14 +8,10 @@ def make_endpoints(app, backend):
     
     @app.route("/about")
     def about():
-        username = ""
-        if "username" in session:
-            username = session["username"]
+        username = request.args.get('username', default="")
         image_names = backend.get_all_image_names()
-        print(len(image_names))
-        return render_template('about.html',image_names = image_names,username=username)
+        return render_template('about.html',image_names = image_names, username=username)
 
-    # TODO(Project 1): Implement additional routes according to the project requirements.
     @app.route("/signup")
     def sign_up():
         return render_template('sign_up.html')

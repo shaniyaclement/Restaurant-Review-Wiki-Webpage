@@ -12,12 +12,12 @@
     <nav>
         <ul>
             <h3><a href="/?username={{username}}">Home</a>&nbsp;&nbsp 
-            <a href="/pages">Pages</a>&nbsp &nbsp
-            <a href="/about">About</a>&nbsp &nbsp  | &nbsp
+            <a href="/pages?username={{username}}">Pages</a>&nbsp &nbsp
+            <a href="/about?username={{username}}">About</a>&nbsp &nbsp  | &nbsp
             {% if username %}
             {{ username }} &nbsp |
-            <a href="/upload">Upload</a>&nbsp &nbsp
-            <a href="/logout">Logout</a>&nbsp &nbsp
+            <a href="/upload?username={{username}}">Upload</a>&nbsp &nbsp
+            <a href="/logout?username={{username}}">Logout</a>&nbsp &nbsp
             {% else %}
             <a href="/login">Login</a>&nbsp &nbsp
             <a href="/signup">Sign Up</a>
