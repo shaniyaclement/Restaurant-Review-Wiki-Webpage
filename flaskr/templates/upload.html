@@ -7,8 +7,24 @@
     </head>
     {% endblock %}
     {% block content %}
+    {% if error %}
+    {% if show_popup %}
+        <div id="popup">
+            <p>{{ error }}</p>
+            <button onclick="closePopup()">Close</button>
+        </div>
+        <script>
+            function closePopup() {
+                var popup = document.getElementById("popup");
+                popup.style.display = "none";
+            }
+        </script>
+    {% else %}
+        <p>{{ error }}</p>
+    {% endif %}
+    {% endif %}
     <h1>Upload a doc to the Wiki</h1>
-    <form action = "/authenticate_upload" method = "post" enctype = "multipart/form-data"> 
+    <form action = "/authenticate_upload?username={{username}}" method = "post" enctype = "multipart/form-data"> 
         <input type = "text" id = "upload" name = "upload" placeholder = "wikiname"> 
         <input type = "file" name = "file" />  
         <input type = "submit" value = "Upload"> 

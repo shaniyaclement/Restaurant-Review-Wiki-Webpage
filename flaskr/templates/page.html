@@ -1,0 +1,10 @@
+{% extends "main.html" %}
+
+{% block page_name%}<title>{{ page_name }}</title>{%endblock%}
+
+{%block content%}
+<h1>{{page_name}}</h1>
+
+<p>{{ text_content }}</p>
+
+{%endblock%}

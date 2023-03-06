@@ -1,18 +1,30 @@
+<<<<<<< HEAD
 from flask import Flask, render_template, request, redirect, url_for, flash, abort, session
 import flask
 from google.cloud import storage
 
+=======
+from flask import Flask, render_template, request, redirect, url_for, flash, abort, session, make_response, Response, send_file
+import io
+>>>>>>> 32ca3a93aea6827b668e6e31a300533c80b021a3
 def make_endpoints(app, backend):
     @app.route("/")
     def home():
         username = request.args.get('username', default="")
         return render_template('main.html', username=username)
-    
+        
     @app.route("/about")
     def about():
         username = request.args.get('username', default="")
-        image_names = backend.get_all_image_names()
-        return render_template('about.html',image_names = image_names, username=username)
+        image_names = backend.get_images()
+        return render_template('about.html', image_names=image_names, username=username)
+
+    @app.route("/image/<string:image_name>")
+    def get_image(image_name):
+        image_data = backend.get_image(image_name)
+        if image_data is None:
+            return Response(status=404)
+        return Response(image_data, mimetype="image/jpeg")
 
     # TODO(Project 1): Implement additional routes according to the project requirements.
     @app.route("/pages")
@@ -28,9 +40,15 @@ def make_endpoints(app, backend):
         return render_template('login.html')
     
     @app.route('/upload')  
+<<<<<<< HEAD
     def upload(): 
 
         return render_template("upload.html")    
+=======
+    def upload():
+        username = request.args.get('username', default="")  
+        return render_template("upload.html", username=username)    
+>>>>>>> 32ca3a93aea6827b668e6e31a300533c80b021a3
 
     @app.route("/authenticate", methods=["POST"])
     def authenticate():
@@ -56,28 +74,43 @@ def make_endpoints(app, backend):
             return render_template('sign_up.html', error=error_message, show_popup=True)
 
     @app.route("/logout")
-    def dashboard():
-        return render_template('main.html', username='')
+    def logout():
+        #return render_template('main.html', username='')
+        res = make_response(render_template('main.html', username=''))
+        res.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        return res
 
     @app.route('/authenticate_upload', methods = ['POST'])  
     def authenticate_upload():  
-        if request.method == 'POST':
-            if 'file' not in request.files:
-                flash('No file part')
-                return redirect(request.url)  
-            file = request.files['file']
-            if file == '':
-                flash('No selected file')
-                return redirect(request.url)
-        # file.save(file.filename)
-
-        storage_client = storage.Client()
-        bucket = storage_client.bucket("wiki_contents_groupx/images")
-        blob = bucket.blob(file.filename)
-
-        generation_match_precondition = 0
-
-        # blob.upload_from_filename(file.filename, if_generation_match = generation_match_precondition)
-        blob.upload_from_string(file.read(), content_type=file.content_type)
-        return home()
- 
+        username = request.args.get('username', default="") 
+        uploaded_file = request.files['file']
+        if not uploaded_file.filename.endswith('.txt'):
+            return render_template('upload.html', error="You can Only upload .txt files!", show_popup=True, username=username)
+        file_contents = uploaded_file.read()
+        # check if file is empty
+        try:
+            decoded_contents = file_contents.decode('utf-8')
+        except UnicodeDecodeError:
+            return render_template('upload.html', error="File is not in UTF-8 encoding!", show_popup=True, username=username)
+        if not decoded_contents.strip():
+            return render_template('upload.html', error="File is empty!", show_popup=True, username=username)
+        f_name = request.form['upload']
+        if len(f_name)<1:
+            return render_template('upload.html', error="Please enter a name for the submission!", show_popup=True, username=username)
+        backend.upload(file_contents, f_name)
+        return render_template('upload.html', error="File uploaded successfully!", show_popup=True, username=username)  # not an error, simply using that param for a pop-message
+        
+    @app.route('/pages')
+    def pages():
+        username = request.args.get('username', default="")
+        page_names = backend.get_all_page_names()
+        return render_template('index.html', page_names=page_names,username =username)
+        
+    @app.route('/pages/<page_name>')
+    def show_page(page_name):
+        username = request.args.get('username', default="")
+        # Fetch the text content from the GCS content bucket using the page name
+        text_content = backend.get_wiki_page(page_name)
+        if text_content is None:
+            abort(404)
+        return render_template('page.html', page_name=page_name, text_content=text_content,username = username)
