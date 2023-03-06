@@ -1,6 +1,8 @@
 from flaskr import create_app
-
 import pytest
+import unittest
+from unittest.mock import patch, Mock
+from flaskr.backend import Backend
 
 # See https://flask.palletsprojects.com/en/2.2.x/testing/ 
 # for more info on testing
@@ -32,5 +34,29 @@ def test_home_page(client):
     assert b"Sign Up" in resp.data
 
 # TODO(Project 1): Write tests for other routes.
+def test_about_page(client):
+    resp = client.get("/about")
+    assert resp.status_code == 200
+    assert b"Home" in resp.data
+    assert b"Pages" in resp.data
+    assert b"About" in resp.data
 
+def test_pages(client):
+    resp = client.get("/pages")
+    assert resp.status_code == 200
+    assert b"Home" in resp.data
+    assert b"Pages" in resp.data
+    assert b"About" in resp.data
 
+def test_show_page(client):
+    # Mock the Backend class and its get_wiki_page method
+    with patch("flaskr.backend.Backend.get_wiki_page") as mock_get_wiki_page:
+        mock_page = {"title": "Test Page", "content": "This is a test page."}
+        mock_get_wiki_page.return_value = mock_page
+        resp = client.get("/pages/1")
+        assert resp.status_code == 200
+        assert mock_page["title"].encode() in resp.data
+        assert mock_page["content"].encode() in resp.data
+        assert b"Home" in resp.data
+        assert b"Pages" in resp.data
+        assert b"About" in resp.data
