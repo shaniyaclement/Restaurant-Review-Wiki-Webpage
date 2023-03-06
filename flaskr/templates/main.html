@@ -12,12 +12,12 @@
     <nav>
         <ul>
             <h3><a href="/?username={{username}}">Home</a>&nbsp;&nbsp 
-            <a href="/pages">Pages</a>&nbsp &nbsp
-            <a href="/about">About</a>&nbsp &nbsp  | &nbsp
+            <a href="/pages?username={{username}}">Pages</a>&nbsp &nbsp
+            <a href="/about?username={{username}}">About</a>&nbsp &nbsp  | &nbsp
             {% if username %}
             {{ username }} &nbsp |
-            <a href="/upload">Upload</a>&nbsp &nbsp
-            <a href="/logout">Logout</a>&nbsp &nbsp
+            <a href="/upload?username={{username}}">Upload</a>&nbsp &nbsp
+            <a href="/logout?username={{username}}">Logout</a>&nbsp &nbsp
             {% else %}
             <a href="/login">Login</a>&nbsp &nbsp
             <a href="/signup">Sign Up</a>
@@ -28,7 +28,11 @@
     {%endblock%}
     
         {% block content %}
+        {% if username %}
+        <h1>Hey {{username}}, welcome back to Little Niche Recomendations!</h1>
+        {% else %}
         <h1>Welcome to Little Niche Recomendations!</h1>
+        {% endif %}
         <br>
         <p>Ever find yourself in a new city, super hungry, and looking for the best food? Ugh, not that touristy crap, you only trust the local salt of the earths. They always know where the best stuff is!</p> 
         <p>Here you will find the some of the best diamonds in the rough restaurants for cities all over the world. Who knows, maybe you'll discover a new hidden gem right in your own backyard. New discoversies are always welcome!</p>
