@@ -1,18 +1,23 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, abort, session, make_response, Response
-
+from flask import Flask, render_template, request, redirect, url_for, flash, abort, session, make_response, Response, send_file
+import io
 def make_endpoints(app, backend):
     @app.route("/")
     def home():
         username = request.args.get('username', default="")
         return render_template('main.html', username=username)
-    
+        
     @app.route("/about")
     def about():
         username = request.args.get('username', default="")
         image_names = backend.get_images()
-        answ = backend.get_image('Prof.png')
-        print(answ)
-        return render_template('about.html',image_names = image_names, username=username, answ=answ)
+        return render_template('about.html', image_names=image_names, username=username)
+
+    @app.route("/image/<string:image_name>")
+    def get_image(image_name):
+        image_data = backend.get_image(image_name)
+        if image_data is None:
+            return Response(status=404)
+        return Response(image_data, mimetype="image/jpeg")
 
     @app.route("/signup")
     def sign_up():

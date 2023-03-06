@@ -29,7 +29,7 @@
 <h3>Meet the authors: Shaniyah, Dagi, and Tomas!</h3>
     <div class="images">
         {% for name in image_names %}
-            <img style = "max-width: 50%; height: auto" src="https://storage.googleapis.com/about-us-pictures/{{name}}" alt="{{ name }}">
+            <img style="max-width: 50%; height: auto" src="{{ url_for('get_image', image_name=name) }}" alt="{{ name }}">
         {% endfor %}
     </div>
 </body>
