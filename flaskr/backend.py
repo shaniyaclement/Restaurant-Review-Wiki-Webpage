@@ -31,6 +31,9 @@ class Backend:
     
 
     def get_image(self, image_name):
+        '''
+        Gets an image from the content bucket.
+        '''
         try:
             blob = self.about_us_pictures.blob(image_name)
             image_data = blob.download_as_bytes()
@@ -40,6 +43,9 @@ class Backend:
             return None
     
     def get_images(self):
+        '''
+        A helper method that returns the names of all the images in the bucket we need to get
+        '''
         try:
             all_blobs = list(self.about_us_pictures.list_blobs())
             names = [os.path.basename(blob.name) for blob in all_blobs]
@@ -54,7 +60,7 @@ class Backend:
         '''
         all_blobs = self.wiki_content_bucket.list_blobs(prefix="pages/")
         names = [os.path.splitext(os.path.basename(blob.name))[0] for blob in all_blobs]
-        return names[1:]
+        return names[1:]  # os seems to add an extra "" at the top of the list, we simply avoid this in constant time
 
     def upload(self, content, name):
         '''
@@ -68,7 +74,7 @@ class Backend:
         Adding user data with a hashed password.
         '''
         cur_blob = self.users_bucket.blob(f"users/{username}")
-        if cur_blob.exists():  # this account has already been created
+        if cur_blob.exists():  # this username account has already been created
             return {'success': False, 'message': 'This username already has an account with us, please log in!'}
         site_secret = "ProjectX_User"
         with_salt = f"{username}{site_secret}{password}"
