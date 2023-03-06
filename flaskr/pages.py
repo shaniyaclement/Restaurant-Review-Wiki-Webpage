@@ -9,8 +9,10 @@ def make_endpoints(app, backend):
     @app.route("/about")
     def about():
         username = request.args.get('username', default="")
-        image_names = backend.get_all_image_names()
-        return render_template('about.html',image_names = image_names, username=username)
+        image_names = backend.get_images()
+        answ = backend.get_image('Prof.png')
+        print(answ)
+        return render_template('about.html',image_names = image_names, username=username, answ=answ)
 
     @app.route("/signup")
     def sign_up():

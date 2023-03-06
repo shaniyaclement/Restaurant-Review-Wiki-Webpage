@@ -26,7 +26,7 @@ class Backend:
             return None
         return cur_blob.download_as_text()
     
-    def get_all_image_names(self):
+    def get_images(self):
         try:
             all_blobs = list(self.about_us_pictures.list_blobs())
             names = [os.path.basename(blob.name) for blob in all_blobs]
@@ -65,7 +65,6 @@ class Backend:
         #print(credentials, with_salt)
 
     def sign_in(self, username, password):
-        print("I'm here")
         '''
         Checking if a password  matches the bucket data once hashed
         '''
@@ -106,8 +105,9 @@ class Backend:
         '''
         Retrieving an image from the bucket
         '''
-        cur_blob = self.wiki_content_bucket.blob(f"images/{name}")
+        cur_blob = self.wiki_content_bucket.blob(f"about-us-pictures/{name}")
         if not cur_blob.exists():
+            print('yup')
             return None
         data = io.BytesIO()
         cur_blob.download_to_file(data)
