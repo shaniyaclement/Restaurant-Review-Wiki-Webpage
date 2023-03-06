@@ -1,12 +1,5 @@
-<<<<<<< HEAD
-from flask import Flask, render_template, request, redirect, url_for, flash, abort, session
-import flask
-from google.cloud import storage
-
-=======
 from flask import Flask, render_template, request, redirect, url_for, flash, abort, session, make_response, Response, send_file
 import io
->>>>>>> 32ca3a93aea6827b668e6e31a300533c80b021a3
 def make_endpoints(app, backend):
     @app.route("/")
     def home():
@@ -26,11 +19,6 @@ def make_endpoints(app, backend):
             return Response(status=404)
         return Response(image_data, mimetype="image/jpeg")
 
-    # TODO(Project 1): Implement additional routes according to the project requirements.
-    @app.route("/pages")
-    def pages():
-        return render_template("pages.html")
-
     @app.route("/signup")
     def sign_up():
         return render_template('sign_up.html')
@@ -40,15 +28,9 @@ def make_endpoints(app, backend):
         return render_template('login.html')
     
     @app.route('/upload')  
-<<<<<<< HEAD
-    def upload(): 
-
-        return render_template("upload.html")    
-=======
     def upload():
         username = request.args.get('username', default="")  
         return render_template("upload.html", username=username)    
->>>>>>> 32ca3a93aea6827b668e6e31a300533c80b021a3
 
     @app.route("/authenticate", methods=["POST"])
     def authenticate():
