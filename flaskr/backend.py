@@ -122,10 +122,3 @@ class Backend:
             return {'success': True, 'message': 'New Account Created!'}
         else:
             return res
-
-'''
-trial = Backend()
-#trial.sign_up("Dagi_Works","dagi_does_work")
-print(trial.sign_in("Dagi_Work","dagi_does_work"))
-print(trial.sign_in("Dagi_Works","dagi_does_work"))
-'''

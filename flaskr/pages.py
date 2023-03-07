@@ -3,17 +3,26 @@ import io
 def make_endpoints(app, backend):
     @app.route("/")
     def home():
+        '''
+        Route for Home
+        '''
         username = request.args.get('username', default="")
         return render_template('main.html', username=username)
         
     @app.route("/about")
     def about():
+        '''
+        Route for About us page
+        '''
         username = request.args.get('username', default="")
         image_names = backend.get_images()
         return render_template('about.html', image_names=image_names, username=username)
 
     @app.route("/image/<string:image_name>")
     def get_image(image_name):
+        '''
+        Our method of showing/getting images from private bucket to public about_us_page
+        '''
         image_data = backend.get_image(image_name)
         if image_data is None:
             return Response(status=404)
@@ -21,19 +30,31 @@ def make_endpoints(app, backend):
 
     @app.route("/signup")
     def sign_up():
+        '''
+        Sign up route
+        '''
         return render_template('sign_up.html')
 
     @app.route("/login", methods=["GET"])
     def log_in():
+        '''
+        Login route
+        '''
         return render_template('login.html')
     
     @app.route('/upload')  
     def upload():
+        '''
+        Upload route
+        '''
         username = request.args.get('username', default="")  
         return render_template("upload.html", username=username)    
 
     @app.route("/authenticate", methods=["POST"])
     def authenticate():
+        '''
+        Route for user auth
+        '''
         username = request.form['username']
         password = request.form['password']
         result = backend.authenticate_user(username, password)
@@ -46,6 +67,9 @@ def make_endpoints(app, backend):
 
     @app.route("/authenticate_new_user", methods=["POST"])
     def authenticate_new_user():
+        '''
+        Route for authenticating new user request
+        '''
         username = request.form['username']
         password = request.form['password']
         result = backend.authenticate_new_user(username, password)
@@ -57,41 +81,49 @@ def make_endpoints(app, backend):
 
     @app.route("/logout")
     def logout():
-        #return render_template('main.html', username='')
+        '''
+        Route for logging out
+        '''
         res = make_response(render_template('main.html', username=''))
-        res.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        res.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'  # for removing cache data of prev. user
         return res
 
     @app.route('/authenticate_upload', methods = ['POST'])  
     def authenticate_upload():  
+        '''
+        Route for uploading files as a authenticated user
+        '''
         username = request.args.get('username', default="") 
         uploaded_file = request.files['file']
         if not uploaded_file.filename.endswith('.txt'):
             return render_template('upload.html', error="You can Only upload .txt files!", show_popup=True, username=username)
         file_contents = uploaded_file.read()
-        # check if file is empty
         try:
             decoded_contents = file_contents.decode('utf-8')
         except UnicodeDecodeError:
-            return render_template('upload.html', error="File is not in UTF-8 encoding!", show_popup=True, username=username)
+            return render_template('upload.html', error="File is not in UTF-8 encoding!", show_popup=True, username=username)  # check encoding
         if not decoded_contents.strip():
-            return render_template('upload.html', error="File is empty!", show_popup=True, username=username)
+            return render_template('upload.html', error="File is empty!", show_popup=True, username=username)  # check if file is empty
         f_name = request.form['upload']
         if len(f_name)<1:
-            return render_template('upload.html', error="Please enter a name for the submission!", show_popup=True, username=username)
-        backend.upload(file_contents, f_name)
+            return render_template('upload.html', error="Please enter a name for the submission!", show_popup=True, username=username)  # name must be enterred
         return render_template('upload.html', error="File uploaded successfully!", show_popup=True, username=username)  # not an error, simply using that param for a pop-message
         
     @app.route('/pages')
     def pages():
+        '''
+        Route for pages index
+        '''
         username = request.args.get('username', default="")
         page_names = backend.get_all_page_names()
         return render_template('index.html', page_names=page_names,username =username)
         
     @app.route('/pages/<page_name>')
     def show_page(page_name):
+        '''
+        Route for param pages
+        '''
         username = request.args.get('username', default="")
-        # Fetch the text content from the GCS content bucket using the page name
         text_content = backend.get_wiki_page(page_name)
         if text_content is None:
             abort(404)
