@@ -91,7 +91,7 @@ def make_endpoints(app, backend):
     @app.route('/authenticate_upload', methods = ['POST'])  
     def authenticate_upload():  
         '''
-        Route for uploading files as a authenticated user
+        Route for uploading files as an authenticated user
         '''
         username = request.args.get('username', default="") 
         uploaded_file = request.files['file']
@@ -107,6 +107,7 @@ def make_endpoints(app, backend):
         f_name = request.form['upload']
         if len(f_name)<1:
             return render_template('upload.html', error="Please enter a name for the submission!", show_popup=True, username=username)  # name must be enterred
+        backend.upload(file_contents, f_name)
         return render_template('upload.html', error="File uploaded successfully!", show_popup=True, username=username)  # not an error, simply using that param for a pop-message
         
     @app.route('/pages')
