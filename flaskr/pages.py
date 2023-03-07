@@ -94,23 +94,24 @@ def make_endpoints(app, backend):
         '''
         Route for uploading files as an authenticated user
         '''
-        username = request.args.get('username', default="") 
+        username = request.args.get('username', default="")
         uploaded_file = request.files['file']
-        if not uploaded_file.filename.endswith('.txt'):
-            return render_template('upload.html', error="You can Only upload .txt files!", show_popup=True, username=username)
-        file_contents = uploaded_file.read()
-        try:
-            decoded_contents = file_contents.decode('utf-8')
-        except UnicodeDecodeError:
-            return render_template('upload.html', error="File is not in UTF-8 encoding!", show_popup=True, username=username)  # check encoding
-        if not decoded_contents.strip():
-            return render_template('upload.html', error="File is empty!", show_popup=True, username=username)  # check if file is empty
         f_name = request.form['upload']
-        if len(f_name)<1:
-            return render_template('upload.html', error="Please enter a name for the submission!", show_popup=True, username=username)  # name must be enterred
-        backend.upload(file_contents, f_name)
-        return render_template('upload.html', error="File uploaded successfully!", show_popup=True, username=username)  # not an error, simply using that param for a pop-message
-        
+        result = backend.authenticate_upload(uploaded_file, f_name)
+        if result['success']:
+            return render_template('upload.html', error="File uploaded successfully!", show_popup=True, username=username)  # not an error, simply using that param for a pop-message
+        elif result['message'] == 'You can only have .txt files':
+            return render_template('upload.html', error="You can Only upload .txt files!", show_popup=True, username=username)
+
+        elif result['message'] == 'File is not in UTF-8 encoding!':
+            return render_template('upload.html', error="File is not in UTF-8 encoding!", show_popup=True, username=username)  # check encoding
+
+        elif result['message'] == 'File is empty!':
+            return render_template('upload.html', error="File is empty!", show_popup=True, username=username)  # check if file is empty
+
+        elif result['message'] == 'Please enter a file name!':
+            return render_template('upload.html', error="Please enter a name for the submission!", show_popup=True, username=username)
+
     @app.route('/pages')
     def pages():
         '''

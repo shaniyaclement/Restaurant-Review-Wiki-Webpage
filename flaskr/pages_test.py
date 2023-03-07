@@ -1,8 +1,8 @@
 from flaskr import create_app
 from flaskr.backend import Backend
-import pytest
+import pytest, os, tempfile
 import unittest
-from unittest.mock import mock_open, patch, Mock
+from unittest.mock import mock_open, patch, Mock, MagicMock
 from flask import render_template, request
 from werkzeug.datastructures import FileStorage
 import io
@@ -31,6 +31,7 @@ def pages():
 
 # TODO(Checkpoint (groups of 4 only) Requirement 4): Change test to
 # match the changes made in the other Checkpoint Requirements. This does not apply to our group
+
 def test_home_page(client):
     '''
     Testing that the homepage renders right when no one is logged-in
@@ -132,19 +133,67 @@ def test_upload_route(client):
     resp = client.get("/upload")
     assert b"<h1>Upload a doc to the Wiki</h1>" in resp.data
 
-# def test_upload_redirects(client):
-#     # test that upload form redirects to /authenticate_upload on submit
-#     upload = "mock_upload_name"
-#     mock_file = "Hi, This is a mock file for upload"
-#     resp = client.post("/authenticate_upload", data={"upload": upload, "file": mock_file})
-#     assert resp.status_code = 200
+def test_upload_redirects(client):
+    # test that upload form redirects to /authenticate_upload on submit
+    upload = "mock_upload_name"
+    mock_file = tempfile.NamedTemporaryFile(delete=False)
+    resp = client.post("/authenticate_upload", data={"upload": upload, "file": mock_file})
+    assert resp.status_code == 200
 
-# def test_authenticate_upload_route(client):
-#     # test /authenticate redirects to main.html
-#     upload = "mock_upload_name"
-#     mock_file = "Hi, This is a mock file for upload"
-#     resp = client.post("/authenticate_upload", data={"upload": upload, "file": mock_file})
-#     assert resp.status_code == 200
+def test_authenticate_upload_route(client):
+    # test /authenticate redirects to main.html
+    with patch("flaskr.backend.Backend.authenticate_upload") as mock_authentication:
+        mock_result = {'success': True, 'message': 'File successfully uploaded!'}
+        mock_authentication.return_value = mock_result
+        upload = "file_name"
+        mock_file = tempfile.NamedTemporaryFile(delete=False)
+        resp = client.post("/authenticate_upload", data={"upload": upload, "file": mock_file})
+        assert resp.status_code == 200
+        assert b"<h1>Upload a doc to the Wiki</h1>" in resp.data
+
+def test_authenticate_upload_route_incorrectName(client):
+    # test /authenticate redirects to main.html
+    with patch("flaskr.backend.Backend.authenticate_upload") as mock_authentication:
+        mock_result = {'success': False, 'message': 'Please enter a file name!'}
+        mock_authentication.return_value = mock_result
+        upload = "file_name"
+        mock_file = tempfile.NamedTemporaryFile(delete=False)
+        resp = client.post("/authenticate_upload", data={"upload": upload, "file": mock_file})
+        assert resp.status_code == 200
+        assert b"<h1>Upload a doc to the Wiki</h1>" in resp.data
+
+def test_authenticate_upload_route_incorrectType(client):
+    # test /authenticate redirects to main.html
+    with patch("flaskr.backend.Backend.authenticate_upload") as mock_authentication:
+        mock_result = {'success': False, 'message': 'You can only have .txt files'}
+        mock_authentication.return_value = mock_result
+        upload = "file_name"
+        mock_file = tempfile.NamedTemporaryFile(delete=False)
+        resp = client.post("/authenticate_upload", data={"upload": upload, "file": mock_file})
+        assert resp.status_code == 200
+        assert b"<h1>Upload a doc to the Wiki</h1>" in resp.data
+ 
+def test_authenticate_upload_route_incorrectContents(client):
+    # test /authenticate redirects to main.html
+    with patch("flaskr.backend.Backend.authenticate_upload") as mock_authentication:
+        mock_result = {'success': False, 'message': 'File is not in UTF-8 encoding!'}
+        mock_authentication.return_value = mock_result
+        upload = "file_name"
+        mock_file = tempfile.NamedTemporaryFile(delete=False)
+        resp = client.post("/authenticate_upload", data={"upload": upload, "file": mock_file})
+        assert resp.status_code == 200
+        assert b"<h1>Upload a doc to the Wiki</h1>" in resp.data
+
+def test_authenticate_upload_route_EmptyFile(client):
+    # test /authenticate redirects to main.html
+    with patch("flaskr.backend.Backend.authenticate_upload") as mock_authentication:
+        mock_result = {'success': False, 'message': 'File is empty!'}
+        mock_authentication.return_value = mock_result
+        upload = "file_name"
+        mock_file = tempfile.NamedTemporaryFile(delete=False)
+        resp = client.post("/authenticate_upload", data={"upload": upload, "file": mock_file})
+        assert resp.status_code == 200
+        assert b"<h1>Upload a doc to the Wiki</h1>" in resp.data
 
 def test_logout_route(client):
     # test /logout route redirects to main.html
