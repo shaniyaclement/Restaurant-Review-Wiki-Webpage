@@ -43,7 +43,7 @@ def test_get_wiki_page(wiki_content_bucket):
     backend = Backend()
     assert backend.get_wiki_page(name) == content
 
-    cur_blob.delete()
+    cur_blob.delete()  # cleaning up
 
 def test_get_images(about_us_pictures):
     '''
@@ -57,29 +57,6 @@ def test_get_images(about_us_pictures):
     assert name in backend.get_images()
 
     cur_blob.delete()
-
-def test_get_image(about_us_pictures, monkeypatch):
-    '''
-    Testing that a nonexistent image returns None and a valid image passes
-    '''
-    image_name = "nonexistent_image.jpg"
-    image_datas=None
-    def mock_blob(self, name):
-        raise Exception("Blob not found")
-    monkeypatch.setattr(about_us_pictures, "blob", mock_blob)
-    backend = Backend()
-    result = backend.get_image(image_name)
-    assert result is None
-
-    image_name = "test_image.jpg"
-    image_data = b"test image bytes"
-    def mock_download_as_bytes(self):
-        print("Mocking download_as_bytes")
-        return image_data
-    monkeypatch.setattr(about_us_pictures, "blob", lambda self, name: MockBlob(name, mock_download_as_bytes))
-    backend = Backend()
-    result = backend.get_image(image_name)
-    assert result == image_datas
 
 def test_get_all_page_names(wiki_content_bucket):
     '''
@@ -192,3 +169,26 @@ def test_authenticate_new_user(users_bucket):
     assert data['password'] == hash_pass
 
     cur_blob.delete()
+
+def test_get_image(about_us_pictures, monkeypatch):
+    '''
+    Testing that a nonexistent image returns None and a valid image passes
+    '''
+    image_name = "nonexistent_image.jpg"
+    image_datas=None
+    def mock_blob(self, name):
+        raise Exception("Blob not found")
+    monkeypatch.setattr(about_us_pictures, "blob", mock_blob)
+    backend = Backend()
+    result = backend.get_image(image_name)
+    assert result is None
+
+    image_name = "test_image.jpg"
+    image_data = b"test image bytes"
+    def mock_download_as_bytes(self):
+        print("Mocking download_as_bytes")
+        return image_data
+    monkeypatch.setattr(about_us_pictures, "blob", lambda self, name: MockBlob(name, mock_download_as_bytes))
+    backend = Backend()
+    result = backend.get_image(image_name)
+    assert result == image_datas
