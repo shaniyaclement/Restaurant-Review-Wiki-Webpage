@@ -58,11 +58,12 @@ def test_get_images(about_us_pictures):
 
     cur_blob.delete()
 
-def test_get_image_failure(about_us_pictures, monkeypatch):
+def test_get_image(about_us_pictures, monkeypatch):
     '''
-    Testing that a nonexistent image returns None
+    Testing that a nonexistent image returns None and a valid image passes
     '''
     image_name = "nonexistent_image.jpg"
+    image_datas=None
     def mock_blob(self, name):
         raise Exception("Blob not found")
     monkeypatch.setattr(about_us_pictures, "blob", mock_blob)
@@ -70,17 +71,12 @@ def test_get_image_failure(about_us_pictures, monkeypatch):
     result = backend.get_image(image_name)
     assert result is None
 
-def test_get_image_success(about_us_pictures, monkeypatch):
-    '''
-    Testing that get_image retrieves image data successfully
-    '''
     image_name = "test_image.jpg"
     image_data = b"test image bytes"
-    image_datas = None
     def mock_download_as_bytes(self):
         print("Mocking download_as_bytes")
         return image_data
-    monkeypatch.setattr(about_us_pictures.blob(image_name), "download_as_bytes", mock_download_as_bytes)
+    monkeypatch.setattr(about_us_pictures, "blob", lambda self, name: MockBlob(name, mock_download_as_bytes))
     backend = Backend()
     result = backend.get_image(image_name)
     assert result == image_datas
