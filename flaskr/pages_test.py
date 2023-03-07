@@ -1,14 +1,13 @@
 from flaskr import create_app
 from flaskr.backend import Backend
-import pytest, os, tempfile
+import pytest, tempfile
 import unittest
-from unittest.mock import mock_open, patch, Mock, MagicMock
-from flask import render_template, request
-from werkzeug.datastructures import FileStorage
-import io
+from unittest.mock import mock_open, patch
 
 # See https://flask.palletsprojects.com/en/2.2.x/testing/ 
 # for more info on testing
+
+# creates a mock app fixture
 @pytest.fixture
 def app():
     app = create_app({
@@ -16,21 +15,15 @@ def app():
     })
     return app
 
+# creates a mock client fixture
 @pytest.fixture
 def client(app):
     return app.test_client()
 
+# creates a mock backend fixture
 @pytest.fixture(scope="module")
 def backend():
     return Backend()
-
-@pytest.fixture(scope="module")
-def pages():
-    return Pages()
-
-
-# TODO(Checkpoint (groups of 4 only) Requirement 4): Change test to
-# match the changes made in the other Checkpoint Requirements. This does not apply to our group
 
 def test_home_page(client):
     '''
@@ -53,7 +46,7 @@ def test_home_page(client):
 # tests that authentic renders main template & error 
 
 def test_signup_route(client):
-    # test /signup route redirects to signup.html -- passes
+    # test /signup route redirects to signup.html
     resp = client.get("/signup")
     assert b"<h1>Sign Up</h1>" in resp.data
 
@@ -66,8 +59,8 @@ def test_signup_redirects(client):
 
 
 def test_authenticate_new_user_route(client):
-    # test /authenticate_new_user redirects to main.html by mocking the backend
-    # calling 
+    # Mock the Backend and get authenticate_new_user method into variable mock_authentication
+        # set the return to expected return and then call the client. assert that the resp properly routed
     with patch("flaskr.backend.Backend.authenticate_new_user") as mock_authentication:
         mock_result = {'success': True, 'message': 'New Account Created!'}
         mock_authentication.return_value = mock_result
@@ -77,7 +70,8 @@ def test_authenticate_new_user_route(client):
         assert b"<title>Little Niche Recomendations</title>" in resp.data
 
 def test_authenticate_new_user_route_incorrect(client):
-    # test /authenticate redirects to main.html
+    # Mock the Backend and get authenticate_new_user method into variable mock_authentication
+        # set the return to expected return and then call the client. assert that the resp properly routed
     with patch("flaskr.backend.Backend.authenticate_new_user") as mock_authentication:
         mock_result = {'success': False, 'message': 'Username needs to be longer than four characters! Try again please.'}
         mock_authentication.return_value = mock_result
@@ -87,7 +81,8 @@ def test_authenticate_new_user_route_incorrect(client):
         assert b"<h1>Sign Up</h1>" in resp.data
 
 def test_authenticate_new_user_route_incorrect1(client):
-    # test /authenticate redirects to main.html
+    # Mock the Backend and get authenticate_new_user method into variable mock_authentication
+        # set the return to expected return and then call the client. assert that the resp properly routed
     with patch("flaskr.backend.Backend.authenticate_new_user") as mock_authentication:
         mock_result = {'success': False, 'message': 'Password needs to include at least one number and be longer than 5 characters.'}
         mock_authentication.return_value = mock_result
@@ -97,19 +92,20 @@ def test_authenticate_new_user_route_incorrect1(client):
         assert b"<h1>Sign Up</h1>" in resp.data
 
 def test_login_route(client):
-    # test /login route redirects to login.html -- passes
+    # test /login route redirects to login.html
     resp = client.get("/login")
     assert b"<h1>Login</h1>" in resp.data
 
 def test_login_redirects(client):
-#     # test that login form redirects to /authenticate= on submit
+    # test that /authenticate is routed to from login form
     username = "returningUser"
     password = "password12"
     resp = client.post("/authenticate", data={"username":username, "password":password})
     assert resp.status_code == 200
 
 def test_authenticate_route(client):
-    # test /authenticate redirects to main.html
+    # Mock the Backend and get authenticate_user method into variable mock_authentication
+        # set the return to expected return and then call the client. assert that the resp properly routed
     with patch("flaskr.backend.Backend.authenticate_user") as mock_authentication:
         mock_result = {'success': True, 'message': 'Authentication successful.'}
         mock_authentication.return_value = mock_result
@@ -119,7 +115,8 @@ def test_authenticate_route(client):
         assert b"<title>Little Niche Recomendations</title>" in resp.data
 
 def test_authenticate_route_incorrect(client):
-    # test /authenticate redirects to main.html
+    # Mock the Backend and get authenticate_user method into variable mock_authentication
+        # set the return to expected return and then call the client. assert that the resp properly routed
     with patch("flaskr.backend.Backend.authenticate_user") as mock_authentication:
         mock_result = {'success': False, 'message': 'Invalid username or password.'}
         mock_authentication.return_value = mock_result
@@ -129,7 +126,7 @@ def test_authenticate_route_incorrect(client):
         assert b"<h1>Login</h1>" in resp.data
 
 def test_upload_route(client):
-    # test /upload route redirects to upload.html -- passes
+    # test /upload route redirects to upload.html
     resp = client.get("/upload")
     assert b"<h1>Upload a doc to the Wiki</h1>" in resp.data
 
@@ -141,7 +138,8 @@ def test_upload_redirects(client):
     assert resp.status_code == 200
 
 def test_authenticate_upload_route(client):
-    # test /authenticate redirects to main.html
+    # Mock the Backend and get authenticate_upload method into variable mock_authentication
+        # set the return to expected return and then call the client. assert that the resp properly routed
     with patch("flaskr.backend.Backend.authenticate_upload") as mock_authentication:
         mock_result = {'success': True, 'message': 'File successfully uploaded!'}
         mock_authentication.return_value = mock_result
@@ -152,7 +150,8 @@ def test_authenticate_upload_route(client):
         assert b"<h1>Upload a doc to the Wiki</h1>" in resp.data
 
 def test_authenticate_upload_route_incorrectName(client):
-    # test /authenticate redirects to main.html
+    # Mock the Backend and get authenticate_upload method into variable mock_authentication
+        # set the return to expected return and then call the client. assert that the resp properly routed
     with patch("flaskr.backend.Backend.authenticate_upload") as mock_authentication:
         mock_result = {'success': False, 'message': 'Please enter a file name!'}
         mock_authentication.return_value = mock_result
@@ -163,7 +162,8 @@ def test_authenticate_upload_route_incorrectName(client):
         assert b"<h1>Upload a doc to the Wiki</h1>" in resp.data
 
 def test_authenticate_upload_route_incorrectType(client):
-    # test /authenticate redirects to main.html
+    # Mock the Backend and get authenticate_upload method into variable mock_authentication
+        # set the return to expected return and then call the client. assert that the resp properly routed
     with patch("flaskr.backend.Backend.authenticate_upload") as mock_authentication:
         mock_result = {'success': False, 'message': 'You can only have .txt files'}
         mock_authentication.return_value = mock_result
@@ -174,7 +174,8 @@ def test_authenticate_upload_route_incorrectType(client):
         assert b"<h1>Upload a doc to the Wiki</h1>" in resp.data
  
 def test_authenticate_upload_route_incorrectContents(client):
-    # test /authenticate redirects to main.html
+   # Mock the Backend and get authenticate_upload method into variable mock_authentication
+        # set the return to expected return and then call the client. assert that the resp properly routed
     with patch("flaskr.backend.Backend.authenticate_upload") as mock_authentication:
         mock_result = {'success': False, 'message': 'File is not in UTF-8 encoding!'}
         mock_authentication.return_value = mock_result
@@ -185,7 +186,8 @@ def test_authenticate_upload_route_incorrectContents(client):
         assert b"<h1>Upload a doc to the Wiki</h1>" in resp.data
 
 def test_authenticate_upload_route_EmptyFile(client):
-    # test /authenticate redirects to main.html
+    # Mock the Backend and get authenticate_upload method into variable mock_authentication
+        # set the return to expected return and then call the client. assert that the resp properly routed
     with patch("flaskr.backend.Backend.authenticate_upload") as mock_authentication:
         mock_result = {'success': False, 'message': 'File is empty!'}
         mock_authentication.return_value = mock_result
