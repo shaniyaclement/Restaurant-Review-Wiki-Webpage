@@ -4,7 +4,7 @@ import os
 import io
 import re  # for regex password validation
 from google.cloud import storage
-from flask import Response
+from flask import Response, render_template
 
 
 class Backend:
@@ -123,9 +123,17 @@ class Backend:
         else:
             return res
 
-'''
-trial = Backend()
-#trial.sign_up("Dagi_Works","dagi_does_work")
-print(trial.sign_in("Dagi_Work","dagi_does_work"))
-print(trial.sign_in("Dagi_Works","dagi_does_work"))
-'''
+    def authenticate_upload(self, uploaded_file, f_name):
+        if not uploaded_file.filename.endswith('.txt'):
+            return {'success': False, 'message': 'You can only have .txt files'}
+        file_contents = uploaded_file.read()
+        try:
+            decoded_contents = file_contents.decode('utf-8')
+        except UnicodeDecodeError:
+            return {'success': False, 'message': 'File is not in UTF-8 encoding!'}
+        if not decoded_contents.strip():
+            return {'success': False, 'message': 'File is empty!'}
+        if len(f_name)<1:
+            {'success': False, 'message': 'Please enter a file name!'}
+        self.upload(file_contents, f_name)
+        return {'success': True, 'message': 'File successfully uploaded!'}
