@@ -7,29 +7,35 @@ import re
 from google.cloud import storage
 
 import pytest
-
 '''
 Building the necessary pytest fixtures
 '''
+
+
 @pytest.fixture(scope="module")
 def backend():
     return Backend()
+
 
 @pytest.fixture(scope="module")
 def client(backend):
     return backend.client
 
+
 @pytest.fixture(scope="module")
 def wiki_content_bucket(backend):
     return backend.wiki_content_bucket
+
 
 @pytest.fixture(scope="module")
 def users_bucket(backend):
     return backend.users_bucket
 
+
 @pytest.fixture(scope="module")
 def about_us_pictures(backend):
     return backend.about_us_pictures
+
 
 def test_get_wiki_page(wiki_content_bucket):
     '''
@@ -45,6 +51,7 @@ def test_get_wiki_page(wiki_content_bucket):
 
     cur_blob.delete()  # cleaning up
 
+
 def test_get_images(about_us_pictures):
     '''
     Testing that images can be gotten from the GSC bucket (essentially get_images test)
@@ -57,6 +64,7 @@ def test_get_images(about_us_pictures):
     assert name in backend.get_images()
 
     cur_blob.delete()
+
 
 def test_get_all_page_names(wiki_content_bucket):
     '''
@@ -76,6 +84,7 @@ def test_get_all_page_names(wiki_content_bucket):
         cur_blob = wiki_content_bucket.blob(f"pages/{name}")
         cur_blob.delete()
 
+
 def test_upload(wiki_content_bucket):
     '''
     Testing the upload functionality from backend that files are uploaded to the GSC bucket
@@ -89,6 +98,7 @@ def test_upload(wiki_content_bucket):
     assert cur_blob.exists() and cur_blob.download_as_text() == content
 
     cur_blob.delete()
+
 
 def test_sign_up(users_bucket):
     '''
@@ -111,6 +121,7 @@ def test_sign_up(users_bucket):
 
     cur_blob.delete()
 
+
 def test_sign_in(users_bucket):
     '''
     Testing the auth sign-in for user works for valid test credentials
@@ -125,6 +136,7 @@ def test_sign_in(users_bucket):
     cur_blob = users_bucket.blob(f"users/{username}")
     cur_blob.delete()
 
+
 def test_authenticate_user(users_bucket):
     '''
     Testing the auth intermid. func for user works for valid test credentials
@@ -134,10 +146,14 @@ def test_authenticate_user(users_bucket):
     password = "test_password1122"
     backend.sign_up(username, password)
 
-    assert backend.authenticate_user(username, password) == {'success': True, 'message': 'Authentication successful.'}
+    assert backend.authenticate_user(username, password) == {
+        'success': True,
+        'message': 'Authentication successful.'
+    }
 
     cur_blob = users_bucket.blob(f"users/{username}")
     cur_blob.delete()
+
 
 def test_authenticate_new_user(users_bucket):
     '''
@@ -145,20 +161,38 @@ def test_authenticate_new_user(users_bucket):
     '''
     backend = Backend()
 
-    assert backend.authenticate_new_user("me", "test_password") == {'success': False, 'message': 'Username needs to be longer than four characters! Try again please.'}  # invalid username
+    assert backend.authenticate_new_user("me", "test_password") == {
+        'success':
+            False,
+        'message':
+            'Username needs to be longer than four characters! Try again please.'
+    }  # invalid username
 
-    assert backend.authenticate_new_user("ThisShouldnptWork", "notme") == {'success': False, 'message': 'Password needs to include at least one number and be longer than 5 characters.'}  # invalid password
-    
+    assert backend.authenticate_new_user("ThisShouldnptWork", "notme") == {
+        'success':
+            False,
+        'message':
+            'Password needs to include at least one number and be longer than 5 characters.'
+    }  # invalid password
+
     username = "test_user"
     password = "test_password1122"
     backend.sign_up(username, password)
-    assert backend.authenticate_new_user(username, password) == {'success': False, 'message': 'This username already has an account with us, please log in!'}  # already existing user
+    assert backend.authenticate_new_user(username, password) == {
+        'success':
+            False,
+        'message':
+            'This username already has an account with us, please log in!'
+    }  # already existing user
     cur_blob = users_bucket.blob(f"users/{username}")
     cur_blob.delete()
 
     username = "new_user_work"
     password = "password123"
-    assert backend.authenticate_new_user(username, password) == {'success': True, 'message': 'New Account Created!'}  # valid new user
+    assert backend.authenticate_new_user(username, password) == {
+        'success': True,
+        'message': 'New Account Created!'
+    }  # valid new user
     cur_blob = users_bucket.blob(f"users/{username}")
     assert cur_blob.exists()
 
@@ -170,14 +204,17 @@ def test_authenticate_new_user(users_bucket):
 
     cur_blob.delete()
 
+
 def test_get_image(about_us_pictures, monkeypatch):
     '''
     Testing that a nonexistent image returns None and a valid image passes
     '''
     image_name = "nonexistent_image.jpg"
-    image_datas=None
+    image_datas = None
+
     def mock_blob(self, name):
         raise Exception("Blob not found")
+
     monkeypatch.setattr(about_us_pictures, "blob", mock_blob)
     backend = Backend()
     result = backend.get_image(image_name)
@@ -185,10 +222,14 @@ def test_get_image(about_us_pictures, monkeypatch):
 
     image_name = "test_image.jpg"
     image_data = b"test image bytes"
+
     def mock_download_as_bytes(self):
         print("Mocking download_as_bytes")
         return image_data
-    monkeypatch.setattr(about_us_pictures, "blob", lambda self, name: MockBlob(name, mock_download_as_bytes))
+
+    monkeypatch.setattr(
+        about_us_pictures, "blob",
+        lambda self, name: MockBlob(name, mock_download_as_bytes))
     backend = Backend()
     result = backend.get_image(image_name)
     assert result == image_datas
