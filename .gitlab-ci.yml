@@ -17,3 +17,6 @@ unittest:
   - pytest .
  only:
   - pushes
+ dependencies: []
+ 
+  
