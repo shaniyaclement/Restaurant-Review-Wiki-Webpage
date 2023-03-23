@@ -13,7 +13,7 @@ unittest:
  - pipeline: test
    job: lint
  script:
- - pip install yapf
+ - pip install -r requirements.txt
  - pytest 
  only:
  - pushes
