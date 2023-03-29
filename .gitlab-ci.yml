@@ -15,7 +15,7 @@ unittest:
  only:
   - merge_requests
 
- prod:
+prod:
  image: google/cloud-sdk:alpine
  stage: deploy
  environment: Production
