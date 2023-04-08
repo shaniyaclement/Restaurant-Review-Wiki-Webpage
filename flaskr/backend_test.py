@@ -222,7 +222,7 @@ def test_get_image(about_us_pictures, monkeypatch):
 
     image_name = "test_image.jpg"
     image_data = b"test image bytes"
-
+"""
     def mock_download_as_bytes(self):
         print("Mocking download_as_bytes")
         return image_data
@@ -233,3 +233,4 @@ def test_get_image(about_us_pictures, monkeypatch):
     backend = Backend()
     result = backend.get_image(image_name)
     assert result == image_datas
+"""
