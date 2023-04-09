@@ -174,7 +174,7 @@ def make_endpoints(app, backend):
         return render_template('edit_pages_index.html',
                                page_names=page_names,
                                username=username)
-    
+
     @app.route('/edit_pages_content/<page_name>')
     def edit_user_pages(page_name):
         '''
@@ -184,7 +184,7 @@ def make_endpoints(app, backend):
         return render_template('edit_pages.html',
                                page_name=page_name,
                                username=username)
-    
+
     @app.route('/authenticate_edit', methods=['POST'])
     def authenticate_edit():
         '''
@@ -194,7 +194,8 @@ def make_endpoints(app, backend):
         og_fn = request.args.get('og_fn', default="")
         uploaded_file = request.files['file']
         f_name = request.form['upload']
-        result = backend.authenticate_edit(uploaded_file, f_name, og_fn, username)  ## Continue from here bro!
+        result = backend.authenticate_edit(uploaded_file, f_name, og_fn,
+                                           username)  ## Continue from here bro!
         if result['success']:
             return render_template(
                 'edit_pages.html',
@@ -224,13 +225,15 @@ def make_endpoints(app, backend):
                                    username=username,
                                    page_name=og_fn)  # check if file is empty
 
-        elif result['message'] == 'Please enter a file name or use previous page title!':
+        elif result[
+                'message'] == 'Please enter a file name or use previous page title!':
             return render_template(
                 'edit_pages.html',
                 error="Please enter a page title name for the submission!",
                 show_popup=True,
                 username=username,
                 page_name=og_fn)
+
     @app.route('/del_page/<page_name>')
     def del_page(page_name):
         '''
@@ -239,8 +242,8 @@ def make_endpoints(app, backend):
         username = request.args.get('username', default="")
         backend.del_page(page_name)
         return render_template(
-                'edit_pages_index.html',
-                error="Page deleted successfully!",
-                show_popup=True,
-                username=username,
-            )
+            'edit_pages_index.html',
+            error="Page deleted successfully!",
+            show_popup=True,
+            username=username,
+        )

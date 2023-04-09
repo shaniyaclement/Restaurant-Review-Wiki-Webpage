@@ -71,9 +71,11 @@ class Backend:
         all_blobs = self.wiki_content_bucket.list_blobs(prefix="pages/")
         names = [
             os.path.splitext(os.path.basename(blob.name))[0]
-            for blob in all_blobs if blob.metadata and blob.metadata.get('username') == username
+            for blob in all_blobs
+            if blob.metadata and blob.metadata.get('username') == username
         ]
         return names
+
     def upload(self, content, name, username="Testing"):
         '''
         Adding data to the bucket
@@ -176,21 +178,29 @@ class Backend:
         '''
         Replacing the original file (og_fn) with the newly edited title and content!
         '''
-        og_blob = self.wiki_content_bucket.blob(f"pages/{og_fn}")  # Get the original blob object
-        new_blob = self.wiki_content_bucket.copy_blob(og_blob, self.wiki_content_bucket, f"pages/{name}")  # Copy the original blob to a new blob with the new name
+        og_blob = self.wiki_content_bucket.blob(
+            f"pages/{og_fn}")  # Get the original blob object
+        new_blob = self.wiki_content_bucket.copy_blob(
+            og_blob, self.wiki_content_bucket, f"pages/{name}"
+        )  # Copy the original blob to a new blob with the new name
         og_blob.delete()  # Delete the original blob
-        new_blob.metadata = {"username": username}  # Update the new blob's metadata
+        new_blob.metadata = {
+            "username": username
+        }  # Update the new blob's metadata
         new_blob.upload_from_string(content)  # Update the new blob's content
         return
 
-        
-
     def authenticate_edit(self, uploaded_file, f_name, og_fn, username):
-        print("Hello!",uploaded_file, f_name, og_fn, username, f_name=='')
+        print("Hello!", uploaded_file, f_name, og_fn, username, f_name == '')
         if not uploaded_file.filename.endswith('.txt'):
             return {'success': False, 'message': 'You can only have .txt files'}
-        if len(f_name) < 1 or f_name=='':
-            return {'success': False, 'message': 'Please enter a file name or use previous page title!'}
+        if len(f_name) < 1 or f_name == '':
+            return {
+                'success':
+                    False,
+                'message':
+                    'Please enter a file name or use previous page title!'
+            }
         file_contents = uploaded_file.read()
         try:
             decoded_contents = file_contents.decode('utf-8')
@@ -203,7 +213,7 @@ class Backend:
             return {'success': False, 'message': 'File is empty!'}
         self.edit_page(file_contents, f_name, username, og_fn)
         return {'success': True, 'message': 'Page updated successfully!'}
-        
+
     def del_page(self, page_name):
         blob_to_del = self.wiki_content_bucket.blob(f"pages/{page_name}")
         blob_to_del.delete()

@@ -360,6 +360,7 @@ def test_get_image(client):
         assert resp.status_code == 200
         assert resp.data == mock_image_data
 
+
 def test_edit_page_index(client):
     '''
     Mock the Backend class and its get_wiki_page method
@@ -375,42 +376,73 @@ def test_edit_page_index(client):
         assert b"Pages" in resp.data
         assert b"About" in resp.data
 
+
 def test_list_user_pages_empty_username(client):
     response = client.get('/edit_pages?username=')
     assert response.status_code == 200
+
 
 def test_list_user_pages_with_username(client):
     response = client.get('/edit_pages?username=testuser')
     assert response.status_code == 200
 
+
 def test_edit_user_pages(client):
     response = client.get('/edit_pages_content/pagename')
     assert response.status_code == 200
 
+
 def test_authenticate_edit_empty_filename(client):
-    with patch("flaskr.backend.Backend.authenticate_edit") as mock_authenticate_edit:
+    with patch("flaskr.backend.Backend.authenticate_edit"
+              ) as mock_authenticate_edit:
         mock_result = {'success': False, 'message': 'File is empty!'}
-        mock_authenticate_edit.return_value=mock_result
-        resp = client.post('/authenticate_edit?username=username&og_fn=og_filename', data={"file": (BytesIO(b""), 'test.txt'), "upload":"New_F_Name"})
+        mock_authenticate_edit.return_value = mock_result
+        resp = client.post(
+            '/authenticate_edit?username=username&og_fn=og_filename',
+            data={
+                "file": (BytesIO(b""), 'test.txt'),
+                "upload": "New_F_Name"
+            })
         assert resp.status_code == 200
+
 
 def test_authenticate_edit_non_utf8_file(client):
-    with patch("flaskr.backend.Backend.authenticate_edit") as mock_authenticate_edit:
-        mock_result = {'success': False, 'message': 'File is not in UTF-8 encoding!'}
-        mock_authenticate_edit.return_value=mock_result
-        resp = client.post('/authenticate_edit?username=username&og_fn=og_filename', data={"file": (BytesIO(b"\xFF\xFE\xFD"), 'test.txt'), "upload":"New_F_Name"})
+    with patch("flaskr.backend.Backend.authenticate_edit"
+              ) as mock_authenticate_edit:
+        mock_result = {
+            'success': False,
+            'message': 'File is not in UTF-8 encoding!'
+        }
+        mock_authenticate_edit.return_value = mock_result
+        resp = client.post(
+            '/authenticate_edit?username=username&og_fn=og_filename',
+            data={
+                "file": (BytesIO(b"\xFF\xFE\xFD"), 'test.txt'),
+                "upload": "New_F_Name"
+            })
         assert resp.status_code == 200
 
+
 def test_authenticate_edit_invalid_file_extension(client):
-    with patch("flaskr.backend.Backend.authenticate_edit") as mock_authenticate_edit:
-        mock_result = {'success': False, 'message': 'You can only have .txt files'}
-        mock_authenticate_edit.return_value=mock_result
-        resp = client.post('/authenticate_edit?username=username&og_fn=og_filename', data={"file": (BytesIO(b""), 'test.pdf'), "upload":"New_F_Name"})
+    with patch("flaskr.backend.Backend.authenticate_edit"
+              ) as mock_authenticate_edit:
+        mock_result = {
+            'success': False,
+            'message': 'You can only have .txt files'
+        }
+        mock_authenticate_edit.return_value = mock_result
+        resp = client.post(
+            '/authenticate_edit?username=username&og_fn=og_filename',
+            data={
+                "file": (BytesIO(b""), 'test.pdf'),
+                "upload": "New_F_Name"
+            })
         assert resp.status_code == 200
+
 
 def test_del_page(client):
     with patch("flaskr.backend.Backend.del_page") as mock_del_page:
         mock_result = {'Page deleted successfully!'}
-        mock_del_page.return_value=mock_result
+        mock_del_page.return_value = mock_result
         response = client.get('/del_page/pagename')
         assert response.status_code == 200
