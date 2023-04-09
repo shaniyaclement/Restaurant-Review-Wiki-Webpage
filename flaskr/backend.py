@@ -183,4 +183,4 @@ class Backend:
         if not reviews:
             return 0
         total_rating = sum(review["rating"] for review in reviews)
-        return total_rating / len(reviews)  
+        return total_rating / len(reviews)

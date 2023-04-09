@@ -162,11 +162,11 @@ def make_endpoints(app, backend):
         average_rating = backend.get_average_rating(page_name)
         reviews = backend.get_reviews(page_name)
         return render_template('page.html',
-                            page_name=page_name,
-                            text_content=text_content,
-                            username=username,
-                            average_rating=average_rating,
-                            reviews=reviews)
+                               page_name=page_name,
+                               text_content=text_content,
+                               username=username,
+                               average_rating=average_rating,
+                               reviews=reviews)
 
     @app.route('/pages/<page_name>/submit_review', methods=['POST'])
     def submit_review(page_name):
@@ -175,7 +175,8 @@ def make_endpoints(app, backend):
             return redirect(url_for('log_in'))
         rating = request.form['rating']
         backend.add_review(page_name, username, rating)
-        return redirect(url_for('show_page', page_name=page_name, username=username))
+        return redirect(
+            url_for('show_page', page_name=page_name, username=username))
 
     @app.route('/ratings', methods=['GET'])
     def view_ratings():
@@ -184,5 +185,4 @@ def make_endpoints(app, backend):
         left to Thomas as to how to incorporate with the rest of his reqs 
         '''
         username = request.args.get('username', default="")
-        return render_template('ratings.html',
-                               username=username)
+        return render_template('ratings.html', username=username)
