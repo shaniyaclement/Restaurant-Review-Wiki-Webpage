@@ -176,3 +176,13 @@ def make_endpoints(app, backend):
         rating = request.form['rating']
         backend.add_review(page_name, username, rating)
         return redirect(url_for('show_page', page_name=page_name, username=username))
+
+    @app.route('/ratings', methods=['GET'])
+    def view_ratings():
+        '''
+        Route for veiwing the Ratings html UI Dagi made, 
+        left to Thomas as to how to incorporate with the rest of his reqs 
+        '''
+        username = request.args.get('username', default="")
+        return render_template('ratings.html',
+                               username=username)

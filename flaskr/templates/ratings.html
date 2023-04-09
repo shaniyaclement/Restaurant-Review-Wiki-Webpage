@@ -1,0 +1,60 @@
+{% extends "main.html" %}
+
+{% block page_name %}
+<title>Ratings</title>
+{% endblock %}
+
+{% block content %}
+<head>
+	<title>Ratings Page Mark-Up</title>
+	<style>
+		.stars {
+			display: inline-block;
+			font-size: 0;
+			cursor: pointer;
+		}
+
+		.stars span {
+			display: inline-block;
+			font-size: 24px;
+			padding: 5px;
+			color: #ccc;
+		}
+
+		.stars span:hover,
+		.stars span:hover ~ span,
+		.stars input:checked + span,
+		.stars input:checked + span ~ span {
+			color: #ffbf00;
+		}
+
+		/* style for the submit button */
+		#submit {
+			display: block;
+			margin-top: 20px;
+			padding: 10px 20px;
+			background-color: #4CAF50;
+			color: white;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+		}
+
+		#submit:hover {
+			background-color: #3e8e41;
+		}
+	</style>
+</head>
+<body>
+	<h1>Clickable Stars with Submit Button</h1>
+	<p>Rate your experience:</p>
+	<div class="stars">
+		<input type="radio" name="rating" value="1" id="star1"><span>★</span>
+		<input type="radio" name="rating" value="2" id="star2"><span>★</span>
+		<input type="radio" name="rating" value="3" id="star3"><span>★</span>
+		<input type="radio" name="rating" value="4" id="star4"><span>★</span>
+		<input type="radio" name="rating" value="5" id="star5"><span>★</span>
+	</div>
+	<button type="submit" id="submit">Submit Review</button>
+</body>
+{% endblock %}
