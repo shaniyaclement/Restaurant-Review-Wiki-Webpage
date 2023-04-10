@@ -272,6 +272,7 @@ def test_edit_page_with_same_name(wiki_content_bucket):
 
     wiki_content_bucket.blob(f"pages/{name}").delete()
 
+
 def test_edit_page_with_same_name(wiki_content_bucket):
     '''
     Testing that a page can be edited with the same name successfully
