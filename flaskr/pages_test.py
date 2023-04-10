@@ -439,7 +439,6 @@ def test_authenticate_edit_invalid_file_extension(client):
             })
         assert resp.status_code == 200
 
-
 def test_del_page(client):
     with patch("flaskr.backend.Backend.del_page") as mock_del_page:
         mock_result = {'Page deleted successfully!'}
