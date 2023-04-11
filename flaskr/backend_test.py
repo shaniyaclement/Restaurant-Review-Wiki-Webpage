@@ -5,6 +5,7 @@ import os
 import io
 import re
 from google.cloud import storage
+from unittest.mock import mock_open, patch, MagicMock
 
 import pytest
 '''
@@ -210,7 +211,7 @@ def test_get_image(about_us_pictures, monkeypatch):
     Testing that a nonexistent image returns None and a valid image passes
     '''
     image_name = "nonexistent_image.jpg"
-    image_datas = None
+    image_data = None
 
     def mock_blob(self, name):
         raise Exception("Blob not found")
@@ -236,3 +237,40 @@ def test_get_image(about_us_pictures, monkeypatch):
     result = backend.get_image(image_name)
     assert result == image_datas
 """
+
+def test_get_reviews(backend):
+    backend.reviews_bucket = MagicMock()
+
+    # Test when the blob does not exist
+    backend.reviews_bucket.blob.return_value.exists.return_value = False
+    reviews = backend.get_reviews("test_restaurant")
+    assert reviews == []
+
+    # Test when the blob exists
+    backend.reviews_bucket.blob.return_value.exists.return_value = True
+    backend.reviews_bucket.blob.return_value.download_as_text.return_value = json.dumps([{"username": "test_user", "rating": 4}])
+    reviews = backend.get_reviews("test_restaurant")
+    assert reviews == [{"username": "test_user", "rating": 4}]
+
+def test_add_review(backend):
+    backend.reviews_bucket = MagicMock()
+    backend.get_reviews = MagicMock(return_value=[{"username": "test_user", "rating": 4}])
+
+    backend.add_review("test_restaurant", "another_user", 5)
+
+    backend.reviews_bucket.blob.return_value.upload_from_string.assert_called_once_with(
+        json.dumps([{"username": "test_user", "rating": 4}, {"username": "another_user", "rating": 5}])
+    )
+
+def test_get_average_rating(backend):
+    backend.get_reviews = MagicMock()
+
+    # Test when there are no reviews
+    backend.get_reviews.return_value = []
+    average_rating = backend.get_average_rating("test_restaurant")
+    assert average_rating == 0
+
+    # Test when there are reviews
+    backend.get_reviews.return_value = [{"username": "test_user", "rating": 4}, {"username": "another_user", "rating": 5}]
+    average_rating = backend.get_average_rating("test_restaurant")
+    assert average_rating == 4.5
