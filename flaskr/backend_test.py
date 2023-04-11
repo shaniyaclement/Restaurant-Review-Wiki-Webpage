@@ -238,6 +238,7 @@ def test_get_image(about_us_pictures, monkeypatch):
     assert result == image_datas
 """
 
+
 def test_get_reviews(backend):
     backend.reviews_bucket = MagicMock()
 
@@ -248,19 +249,33 @@ def test_get_reviews(backend):
 
     # Test when the blob exists
     backend.reviews_bucket.blob.return_value.exists.return_value = True
-    backend.reviews_bucket.blob.return_value.download_as_text.return_value = json.dumps([{"username": "test_user", "rating": 4}])
+    backend.reviews_bucket.blob.return_value.download_as_text.return_value = json.dumps(
+        [{
+            "username": "test_user",
+            "rating": 4
+        }])
     reviews = backend.get_reviews("test_restaurant")
     assert reviews == [{"username": "test_user", "rating": 4}]
 
+
 def test_add_review(backend):
     backend.reviews_bucket = MagicMock()
-    backend.get_reviews = MagicMock(return_value=[{"username": "test_user", "rating": 4}])
+    backend.get_reviews = MagicMock(return_value=[{
+        "username": "test_user",
+        "rating": 4
+    }])
 
     backend.add_review("test_restaurant", "another_user", 5)
 
     backend.reviews_bucket.blob.return_value.upload_from_string.assert_called_once_with(
-        json.dumps([{"username": "test_user", "rating": 4}, {"username": "another_user", "rating": 5}])
-    )
+        json.dumps([{
+            "username": "test_user",
+            "rating": 4
+        }, {
+            "username": "another_user",
+            "rating": 5
+        }]))
+
 
 def test_get_average_rating(backend):
     backend.get_reviews = MagicMock()
@@ -271,6 +286,12 @@ def test_get_average_rating(backend):
     assert average_rating == 0
 
     # Test when there are reviews
-    backend.get_reviews.return_value = [{"username": "test_user", "rating": 4}, {"username": "another_user", "rating": 5}]
+    backend.get_reviews.return_value = [{
+        "username": "test_user",
+        "rating": 4
+    }, {
+        "username": "another_user",
+        "rating": 5
+    }]
     average_rating = backend.get_average_rating("test_restaurant")
     assert average_rating == 4.5

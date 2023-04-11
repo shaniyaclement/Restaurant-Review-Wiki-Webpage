@@ -358,19 +358,21 @@ def test_get_image(client):
         assert resp.status_code == 200
         assert resp.data == mock_image_data
 
+
 def test_submit_review(client):
     page_name = "test_page"
     username = "test_user"
     rating = "4"
 
     # Test when user is not logged in
-    response = client.post(f'/pages/{page_name}/submit_review', data=dict(rating=rating))
+    response = client.post(f'/pages/{page_name}/submit_review',
+                           data=dict(rating=rating))
     assert response.status_code == 302
     assert response.location.endswith('/login')
 
     # Test when user is logged in
-    response = client.post(f'/pages/{page_name}/submit_review', data=dict(rating=rating), query_string=dict(username=username))
+    response = client.post(f'/pages/{page_name}/submit_review',
+                           data=dict(rating=rating),
+                           query_string=dict(username=username))
     assert response.status_code == 302
     assert response.location.endswith(f'/pages/{page_name}?username={username}')
-
-
