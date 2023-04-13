@@ -192,3 +192,17 @@ def test_get_image(about_us_pictures, monkeypatch):
     backend = Backend()
     result = backend.get_image(image_name)
     assert result == image_datas
+
+    def test_authenticate_new_user(users_bucket):
+        '''
+        Test 
+        '''
+        backend = Backend()
+        upload = "file_name"
+        mock_file = tempfile.NamedTemporaryFile(delete=False)
+
+        assert backend.authenticate_upload("file_name", mock_file) == {'success': False, 'message': 'You can only have .txt files'}
+        assert backend.authenticate_upload("file_name", mock_file) == {'success': False, 'message': 'File is not in UTF-8 encoding!'}
+        assert backend.authenticate_upload("file_name", mock_file) == {'success': False, 'message': 'File is empty!'}
+        assert backend.authenticate_upload("", mock_file) == {'success': False, 'message': 'Please enter a file name!'}
+        assert backend.authenticate_upload("passing_case", mock_file) == {'success': True, 'message': 'File successfully uploaded!'}
