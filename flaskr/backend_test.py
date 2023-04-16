@@ -93,7 +93,6 @@ def test_upload(wiki_content_bucket):
     name = "test_page"
     backend = Backend()
     backend.upload(content, name)
-
     cur_blob = wiki_content_bucket.blob(f"pages/{name}")
     assert cur_blob.exists() and cur_blob.download_as_text() == content
 
@@ -233,3 +232,112 @@ def test_get_image(about_us_pictures, monkeypatch):
     backend = Backend()
     result = backend.get_image(image_name)
     assert result == image_datas
+
+
+def test_edit_page(wiki_content_bucket):
+    '''
+    Testing that a page can be edited successfully
+    '''
+    content = "original content"
+    name = "test_page"
+    username = "test_user"
+    og_fn = name
+    cur_blob = wiki_content_bucket.blob(f"pages/{name}")
+    cur_blob.upload_from_string(content)
+
+    new_content = "new content"
+    new_name = "new_page"
+    backend = Backend()
+    backend.edit_page(new_content, new_name, username, og_fn)
+    assert wiki_content_bucket.blob(f"pages/{new_name}").exists()
+
+    wiki_content_bucket.blob(f"pages/{new_name}").delete()
+
+
+def test_edit_page_with_same_name(wiki_content_bucket):
+    '''
+    Testing that a page can be edited with the same name successfully
+    '''
+    content = "original content"
+    name = "test_page"
+    username = "test_user"
+    og_fn = name
+    cur_blob = wiki_content_bucket.blob(f"pages/{name}")
+    cur_blob.upload_from_string(content)
+
+    new_content = "new content"
+    backend = Backend()
+    backend.edit_page(new_content, name, username, og_fn)
+    assert wiki_content_bucket.blob(f"pages/{name}").exists()
+
+    wiki_content_bucket.blob(f"pages/{name}").delete()
+
+
+def test_edit_page_with_same_name(wiki_content_bucket):
+    '''
+    Testing that a page can be edited with the same name successfully
+    '''
+    content = "original content"
+    name = "test_page"
+    username = "test_user"
+    og_fn = name
+    cur_blob = wiki_content_bucket.blob(f"pages/{name}")
+    cur_blob.upload_from_string(content)
+
+    new_content = "new content"
+    backend = Backend()
+    backend.edit_page(new_content, name, username, og_fn)
+    assert wiki_content_bucket.blob(f"pages/{name}").exists()
+
+    wiki_content_bucket.blob(f"pages/{name}").delete()
+
+
+def test_authenticate_edit_invalid_file_type():
+    '''
+    Testing that a file with an invalid file type is not allowed to be uploaded
+    '''
+    backend = Backend()
+    uploaded_file = io.BytesIO(b'test content')
+    uploaded_file.filename = 'test_page.jpg'
+    result = backend.authenticate_edit(uploaded_file, "test_page", "",
+                                       "test_user")
+    assert result['success'] == False
+    assert result['message'] == 'You can only have .txt files'
+
+
+def test_authenticate_edit_empty_file():
+    '''
+    Testing that an empty file is not allowed to be uploaded
+    '''
+    backend = Backend()
+    uploaded_file = io.BytesIO(b'')
+    uploaded_file.filename = 'test_page.txt'
+    result = backend.authenticate_edit(uploaded_file, "test_page", "",
+                                       "test_user")
+    assert result['success'] == False
+    assert result['message'] == 'File is empty!'
+
+
+def test_authenticate_edit_invalid_encoding():
+    '''
+    Testing that a file with invalid encoding is not allowed to be uploaded
+    '''
+    backend = Backend()
+    uploaded_file = io.BytesIO(b'\xa5\x90\x96\n')
+    uploaded_file.filename = 'test_page.txt'
+    result = backend.authenticate_edit(uploaded_file, "test_page", "",
+                                       "test_user")
+    assert result['success'] == False
+    assert result['message'] == 'File is not in UTF-8 encoding!'
+
+
+def test_authenticate_edit_failed_upload():
+    '''
+    Testing that a file with no file name is not allowed to be uploaded
+    '''
+    backend = Backend()
+    uploaded_file = io.BytesIO(b'test content')
+    uploaded_file.filename = ''
+    result = backend.authenticate_edit(uploaded_file, "", "", "test_user")
+    assert result['success'] == False
+    assert result['message'] == 'You can only have .txt files'

@@ -1,0 +1,33 @@
+{% extends "main.html" %}
+
+<html>
+    {% block page_name %}
+    <head>
+    <title>Edit Page</title>
+    </head>
+    {% endblock %}
+    {% block content %}
+    {% if error %}
+    {% if show_popup %}
+        <div id="popup">
+            <p>{{ error }}</p>
+            <button onclick="closePopup()">Close</button>
+        </div>
+        <script>
+            function closePopup() {
+                var popup = document.getElementById("popup");
+                popup.style.display = "none";
+            }
+        </script>
+    {% else %}
+        <p>{{ error }}</p>
+    {% endif %}
+    {% endif %}
+    <h1>Please Enter the Title and File contents you would like to update for {{page_name}}</h1>
+    <form action="/authenticate_edit?username={{username}}&og_fn={{page_name}}" method = "post" enctype = "multipart/form-data"> 
+        <input type = "text" id = "upload" name = "upload" placeholder = "New Wiki Title"> 
+        <input type = "file" name = "file" />  
+        <input type = "submit" value = "Upload"> 
+    </form>
+    {% endblock %}
+</html>
