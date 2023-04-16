@@ -173,7 +173,8 @@ def make_endpoints(app, backend):
         page_names = backend.get_all_page_names_for_user(username)
         return render_template('edit_pages_index.html',
                                page_names=page_names,
-                               username=username)
+                               username=username,
+                               instructions=True)
 
     @app.route('/edit_pages_content/<page_name>')
     def edit_user_pages(page_name):
@@ -195,14 +196,14 @@ def make_endpoints(app, backend):
         uploaded_file = request.files['file']
         f_name = request.form['upload']
         result = backend.authenticate_edit(uploaded_file, f_name, og_fn,
-                                           username)  ## Continue from here bro!
+                                           username)
         if result['success']:
             return render_template(
                 'edit_pages.html',
                 error="Page updated successfully!",
                 show_popup=True,
                 username=username,
-                page_name=og_fn
+                page_name=f_name
             )  # not an error, simply using that param for a pop-message
         elif result['message'] == 'You can only have .txt files':
             return render_template('edit_pages.html',
@@ -246,4 +247,5 @@ def make_endpoints(app, backend):
             error="Page deleted successfully!",
             show_popup=True,
             username=username,
+            instructions=False
         )

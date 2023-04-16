@@ -24,6 +24,9 @@
 {% endif %}
 {% endif %}
   <div>
+    {% if instructions %}
+    <p1>Select a page to edit/remove from the pages you have uploaded to the wiki:</p1>
+    {% endif %}
   <ul style="list-style: none; padding: 0;">
     {% for page_name in page_names %}
       <li>
