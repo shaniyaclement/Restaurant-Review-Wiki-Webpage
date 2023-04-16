@@ -242,10 +242,8 @@ def make_endpoints(app, backend):
         '''
         username = request.args.get('username', default="")
         backend.del_page(page_name)
-        return render_template(
-            'edit_pages_index.html',
-            error="Page deleted successfully!",
-            show_popup=True,
-            username=username,
-            instructions=False
-        )
+        return render_template('edit_pages_index.html',
+                               error="Page deleted successfully!",
+                               show_popup=True,
+                               username=username,
+                               instructions=False)
