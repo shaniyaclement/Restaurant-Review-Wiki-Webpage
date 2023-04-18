@@ -7,4 +7,34 @@
 
 <p>{{ text_content }}</p>
 
+    {% if reviewed %}
+    <p> You have already reviewed this restaurant.</p>
+    {%else%}
+        {% if username %}
+        <h2>Submit your review:</h2>
+        <form action="{{ url_for('submit_review', page_name=page_name, username=username) }}" method="post">
+            <div class="stars" data-rating="0">
+                <input type="radio" name="rating" value="5" id="star5"><span onmouseover="this.parentNode.dataset.rating = 5;">★</span>
+                <input type="radio" name="rating" value="4" id="star4"><span onmouseover="this.parentNode.dataset.rating = 4;">★</span>
+                <input type="radio" name="rating" value="3" id="star3"><span onmouseover="this.parentNode.dataset.rating = 3;">★</span>
+                <input type="radio" name="rating" value="2" id="star2"><span onmouseover="this.parentNode.dataset.rating = 2;">★</span>
+                <input type="radio" name="rating" value="1" id="star1"><span onmouseover="this.parentNode.dataset.rating = 1;">★</span>
+            </div>
+            <button type="submit" id="submit">Submit Review</button>
+        </form>
+        {% else %}
+            <p>Please <a href="{{ url_for('log_in') }}">log in</a> to rate this restaurant.</p>
+        {% endif %}
+    {% endif %}
+    <h2>Average Rating: {{ average_rating }}</h2>
+    <h2>Reviews:</h2>
+    {% if reviews %}
+        <ul>
+            {% for review in reviews %}
+                <li>{{ review.username }} rated {{ review.rating }} stars</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No reviews yet.</p>
+    {% endif %}
 {%endblock%}

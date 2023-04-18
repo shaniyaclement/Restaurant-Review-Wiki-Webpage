@@ -21,6 +21,7 @@ class Backend:
             'wiki_contents_groupx')
         self.users_bucket = self.client.get_bucket('users_and_passwords_groupx')
         self.about_us_pictures = self.client.get_bucket('about-us-pictures')
+        self.reviews_bucket = self.client.get_bucket('reviews_groupx')
 
     def get_wiki_page(self, name):
         '''
@@ -218,3 +219,22 @@ class Backend:
         blob_to_del = self.wiki_content_bucket.blob(f"pages/{page_name}")
         blob_to_del.delete()
         return
+    def get_reviews(self, restaurant_name):
+        reviews_blob = self.reviews_bucket.blob(f"reviews/{restaurant_name}")
+        if not reviews_blob.exists():
+            return []
+        reviews_data = json.loads(reviews_blob.download_as_text())
+        return reviews_data
+
+    def add_review(self, restaurant_name, username, rating):
+        reviews = self.get_reviews(restaurant_name)
+        reviews.append({"username": username, "rating": int(rating)})
+        reviews_blob = self.reviews_bucket.blob(f"reviews/{restaurant_name}")
+        reviews_blob.upload_from_string(json.dumps(reviews))
+
+    def get_average_rating(self, restaurant_name):
+        reviews = self.get_reviews(restaurant_name)
+        if not reviews:
+            return 0
+        total_rating = sum(review["rating"] for review in reviews)
+        return total_rating / len(reviews)

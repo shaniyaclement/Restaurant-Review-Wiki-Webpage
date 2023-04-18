@@ -150,19 +150,6 @@ def make_endpoints(app, backend):
                                page_names=page_names,
                                username=username)
 
-    @app.route('/pages/<page_name>')
-    def show_page(page_name):
-        '''
-        Route for param pages
-        '''
-        username = request.args.get('username', default="")
-        text_content = backend.get_wiki_page(page_name)
-        if text_content is None:
-            abort(404)
-        return render_template('page.html',
-                               page_name=page_name,
-                               text_content=text_content,
-                               username=username)
 
     @app.route('/edit_pages')
     def list_user_pages():
@@ -247,3 +234,44 @@ def make_endpoints(app, backend):
                                show_popup=True,
                                username=username,
                                instructions=False)
+    @app.route('/pages/<page_name>')
+    def show_page(page_name):
+        '''
+        Route for param pages
+        '''
+        username = request.args.get('username', default="")
+        text_content = backend.get_wiki_page(page_name)
+        if text_content is None:
+            abort(404)
+        average_rating = backend.get_average_rating(page_name)
+        reviews = backend.get_reviews(page_name)
+        user_review = next(
+            (review for review in reviews if review["username"] == username),
+            None)
+        reviewed = user_review is not None
+        return render_template('page.html',
+                               page_name=page_name,
+                               text_content=text_content,
+                               username=username,
+                               average_rating=average_rating,
+                               reviews=reviews,
+                               reviewed=reviewed)
+
+    @app.route('/pages/<page_name>/submit_review', methods=['POST'])
+    def submit_review(page_name):
+        username = request.args.get('username', default="")
+        if not username:
+            return redirect(url_for('log_in'))
+        rating = request.form['rating']
+        backend.add_review(page_name, username, rating)
+        return redirect(
+            url_for('show_page', page_name=page_name, username=username))
+
+    @app.route('/ratings', methods=['GET'])
+    def view_ratings():
+        '''
+        Route for veiwing the Ratings html UI Dagi made, 
+        left to Thomas as to how to incorporate with the rest of his reqs 
+        '''
+        username = request.args.get('username', default="")
+        return render_template('ratings.html', username=username)
