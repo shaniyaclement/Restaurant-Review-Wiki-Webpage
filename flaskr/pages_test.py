@@ -447,6 +447,7 @@ def test_del_page(client):
         mock_del_page.return_value = mock_result
         response = client.get('/del_page/pagename')
         assert response.status_code == 200
+
 def test_submit_review(client):
     page_name = "test_page"
     username = "test_user"

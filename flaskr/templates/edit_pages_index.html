@@ -35,6 +35,9 @@
     {% endfor %}
     <li id="list-end"></li>
   </ul>
+  {% if instructions %}
+  <h5>**If no pages appear please begin by uploading a page to the wiki!**</h5>
+  {% endif %}
 
   <div id="popup-container" style="position: relative;">
     <div id="popup" style="display: none; position: absolute; z-index: 1; background-color: white; border: 1px solid black; padding: 10px; text-align: center;">

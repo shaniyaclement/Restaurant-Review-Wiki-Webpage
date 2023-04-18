@@ -224,19 +224,6 @@ def test_get_image(about_us_pictures, monkeypatch):
     image_data = b"test image bytes"
 
 
-"""
-    def mock_download_as_bytes(self):
-        print("Mocking download_as_bytes")
-        return image_data
-
-    monkeypatch.setattr(
-        about_us_pictures, "blob",
-        lambda self, name: MockBlob(name, mock_download_as_bytes))
-    backend = Backend()
-    result = backend.get_image(image_name)
-    assert result == image_datas
-
-
 def test_edit_page(wiki_content_bucket):
     '''
     Testing that a page can be edited successfully
@@ -255,25 +242,6 @@ def test_edit_page(wiki_content_bucket):
     assert wiki_content_bucket.blob(f"pages/{new_name}").exists()
 
     wiki_content_bucket.blob(f"pages/{new_name}").delete()
-
-
-def test_edit_page_with_same_name(wiki_content_bucket):
-    '''
-    Testing that a page can be edited with the same name successfully
-    '''
-    content = "original content"
-    name = "test_page"
-    username = "test_user"
-    og_fn = name
-    cur_blob = wiki_content_bucket.blob(f"pages/{name}")
-    cur_blob.upload_from_string(content)
-
-    new_content = "new content"
-    backend = Backend()
-    backend.edit_page(new_content, name, username, og_fn)
-    assert wiki_content_bucket.blob(f"pages/{name}").exists()
-
-    wiki_content_bucket.blob(f"pages/{name}").delete()
 
 
 def test_edit_page_with_same_name(wiki_content_bucket):
@@ -344,7 +312,7 @@ def test_authenticate_edit_failed_upload():
     result = backend.authenticate_edit(uploaded_file, "", "", "test_user")
     assert result['success'] == False
     assert result['message'] == 'You can only have .txt files'
-"""
+
 
 
 def test_get_reviews(backend):
