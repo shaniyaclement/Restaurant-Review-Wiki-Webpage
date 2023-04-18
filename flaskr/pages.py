@@ -72,6 +72,20 @@ def make_endpoints(app, backend):
                                    error=error_message,
                                    show_popup=True)
 
+    @app.route("/search", methods=["POST"])
+    def search():
+        '''
+        Search route
+        '''
+        searched = request.form['searched']
+        username = request.args.get('username', default="")
+        page_names = backend.get_all_page_names()
+        for page_name in page_names:
+            if (searched.lower() not in (backend.get_wiki_page(page_name)).lower()):
+                page_names.remove(page_name)
+        return render_template('search.html', searched=searched, page_names=page_names,
+                               username=username)
+
     @app.route("/authenticate_new_user", methods=["POST"])
     def authenticate_new_user():
         '''
@@ -139,6 +153,7 @@ def make_endpoints(app, backend):
                 show_popup=True,
                 username=username)
 
+
     @app.route('/pages')
     def pages():
         '''
@@ -163,3 +178,5 @@ def make_endpoints(app, backend):
                                page_name=page_name,
                                text_content=text_content,
                                username=username)
+
+
