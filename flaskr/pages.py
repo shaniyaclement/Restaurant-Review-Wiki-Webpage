@@ -161,12 +161,9 @@ def make_endpoints(app, backend):
             abort(404)
         average_rating = backend.get_average_rating(page_name)
         reviews = backend.get_reviews(page_name)
-        return render_template('page.html',
-                               page_name=page_name,
-                               text_content=text_content,
-                               username=username,
-                               average_rating=average_rating,
-                               reviews=reviews)
+        user_review = next((review for review in reviews if review["username"] == username), None)
+        reviewed = user_review is not None
+        return render_template('page.html', page_name=page_name, text_content=text_content, username=username, average_rating=average_rating, reviews=reviews, reviewed=reviewed)
 
     @app.route('/pages/<page_name>/submit_review', methods=['POST'])
     def submit_review(page_name):
