@@ -19,7 +19,8 @@ def make_endpoints(app, backend):
         '''
         username = request.args.get('username', default="")
         image_names = backend.get_images()
-        return render_template('about.html',
+        length = len(image_names)
+        return render_template('about.html', length=length,
                                image_names=image_names,
                                username=username)
 

@@ -4,9 +4,6 @@
 <title>About This Wiki</title>
 {% endblock %}
 
-
-
-
 {% block content %}
 <head>
     <style>
@@ -20,17 +17,42 @@
     height: 300px;
     margin: 10px;
   }
-</style>
+    </style>
 </head>
+
 <body>
-<h1>About Us</h1>
-<p>Ever find yourself in a new city, super hungry, and looking for the best food? Ugh, not that touristy crap, you only trust the local salt of the earths. They always know where the best stuff is!</p> 
-<p>Here you will find the some of the best diamonds in the rough restaurants for cities all over the world. Who knows, maybe you'll discover a new hidden gem right in your own backyard. New discoversies are always welcome!</p>
-<h3>Meet the authors: Shaniyah, Dagi, and Tomas!</h3>
-    <div class="images">
+    <h1 style="text-align: center;">About Us</h1>
+    <p style="text-align: center;">Ever find yourself in a new city, super hungry, and looking for the best food? Ugh, not that touristy crap, you only trust the local salt of the earths. They always know where the best stuff is!</p> 
+    <p stle="text-align: center;"y>Here you will find the some of the best diamonds in the rough restaurants for cities all over the world. Who knows, maybe you'll discover a new hidden gem right in your own backyard. New discoversies are always welcome!</p>
+    <h3 style="text-align: center;">Meet the authors: Shaniya, Dagi, and Tomas!</h3>
+
+    <div id="carousel">
         {% for name in image_names %}
-            <img style="max-width: 50%; height: auto" src="{{ url_for('get_image', image_name=name) }}" alt="{{ name }}">
-        {% endfor %}
+        <center>
+            <img style="width: 300px; height: 300px; margin: 10px; display: flex; flex-wrap: wrap; justify-content: left; text-align: center;" 
+            src="{{ url_for('get_image', image_name=name) }}" 
+            alt="{{ name }}"
+            >
+        </center>
+        {% endfor %} 
     </div>
+
+    <!-- JavaScript that drives the carousel to display one image at time for 5 second -->    
+    <script>
+        var point = 0;
+        carousel();
+
+        function carousel() {
+        var i;
+        var images = document.getElementById("carousel").getElementsByTagName("img");
+        for (i = 0; i < images.length; i++) {
+            images[i].style.display = "none";
+        }
+        point++;
+        if (point > images.length) {point = 1}
+        images[point-1].style.display = "inline";
+        setTimeout(carousel, 5000);
+        }
+    </script>
 </body>
 {% endblock %}

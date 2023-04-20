@@ -127,6 +127,10 @@ def test_filter_search(wiki_content_bucket):
     output = set(backend.filter_search(searched))
     for page in result_pages:
         assert page in output
+    
+    for name in names:
+        cur_blob = wiki_content_bucket.blob(f"pages/{name}")
+        cur_blob.delete()
 
 
 def test_upload(wiki_content_bucket):
