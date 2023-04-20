@@ -118,7 +118,7 @@ def make_endpoints(app, backend):
         username = request.args.get('username', default="")
         uploaded_file = request.files['file']
         f_name = request.form['upload']
-        result = backend.authenticate_upload(uploaded_file, f_name)
+        result = backend.authenticate_upload(uploaded_file, f_name, username)
         if result['success']:
             return render_template(
                 'upload.html',
@@ -163,6 +163,90 @@ def make_endpoints(app, backend):
                                page_names=page_names,
                                username=username)
 
+
+    @app.route('/edit_pages')
+    def list_user_pages():
+        '''
+        Route for listing all the pages the user previously uploaded
+        '''
+        username = request.args.get('username', default="")
+        page_names = backend.get_all_page_names_for_user(username)
+        return render_template('edit_pages_index.html',
+                               page_names=page_names,
+                               username=username,
+                               instructions=True)
+
+    @app.route('/edit_pages_content/<page_name>')
+    def edit_user_pages(page_name):
+        '''
+        Route for listing all the pages the user previously uploaded
+        '''
+        username = request.args.get('username', default="")
+        return render_template('edit_pages.html',
+                               page_name=page_name,
+                               username=username)
+
+    @app.route('/authenticate_edit', methods=['POST'])
+    def authenticate_edit():
+        '''
+        Route for editing files as an authenticated user
+        '''
+        username = request.args.get('username', default="")
+        og_fn = request.args.get('og_fn', default="")
+        uploaded_file = request.files['file']
+        f_name = request.form['upload']
+        result = backend.authenticate_edit(uploaded_file, f_name, og_fn,
+                                           username)
+        if result['success']:
+            return render_template(
+                'edit_pages.html',
+                error="Page updated successfully!",
+                show_popup=True,
+                username=username,
+                page_name=f_name
+            )  # not an error, simply using that param for a pop-message
+        elif result['message'] == 'You can only have .txt files':
+            return render_template('edit_pages.html',
+                                   error="You can Only upload .txt files!",
+                                   show_popup=True,
+                                   username=username,
+                                   page_name=og_fn)
+
+        elif result['message'] == 'File is not in UTF-8 encoding!':
+            return render_template('edit_pages.html',
+                                   error="File is not in UTF-8 encoding!",
+                                   show_popup=True,
+                                   username=username,
+                                   page_name=og_fn)  # check encoding
+
+        elif result['message'] == 'File is empty!':
+            return render_template('edit_pages.html',
+                                   error="File is empty!",
+                                   show_popup=True,
+                                   username=username,
+                                   page_name=og_fn)  # check if file is empty
+
+        elif result[
+                'message'] == 'Please enter a file name or use previous page title!':
+            return render_template(
+                'edit_pages.html',
+                error="Please enter a page title name for the submission!",
+                show_popup=True,
+                username=username,
+                page_name=og_fn)
+
+    @app.route('/del_page/<page_name>')
+    def del_page(page_name):
+        '''
+        Route for deleting a page the user previously uploaded
+        '''
+        username = request.args.get('username', default="")
+        backend.del_page(page_name)
+        return render_template('edit_pages_index.html',
+                               error="Page deleted successfully!",
+                               show_popup=True,
+                               username=username,
+                               instructions=False)
     @app.route('/pages/<page_name>')
     def show_page(page_name):
         '''
@@ -172,7 +256,35 @@ def make_endpoints(app, backend):
         text_content = backend.get_wiki_page(page_name)
         if text_content is None:
             abort(404)
+        average_rating = backend.get_average_rating(page_name)
+        reviews = backend.get_reviews(page_name)
+        user_review = next(
+            (review for review in reviews if review["username"] == username),
+            None)
+        reviewed = user_review is not None
         return render_template('page.html',
                                page_name=page_name,
                                text_content=text_content,
-                               username=username)
+                               username=username,
+                               average_rating=average_rating,
+                               reviews=reviews,
+                               reviewed=reviewed)
+
+    @app.route('/pages/<page_name>/submit_review', methods=['POST'])
+    def submit_review(page_name):
+        username = request.args.get('username', default="")
+        if not username:
+            return redirect(url_for('log_in'))
+        rating = request.form['rating']
+        backend.add_review(page_name, username, rating)
+        return redirect(
+            url_for('show_page', page_name=page_name, username=username))
+
+    @app.route('/ratings', methods=['GET'])
+    def view_ratings():
+        '''
+        Route for veiwing the Ratings html UI Dagi made, 
+        left to Thomas as to how to incorporate with the rest of his reqs 
+        '''
+        username = request.args.get('username', default="")
+        return render_template('ratings.html', username=username)

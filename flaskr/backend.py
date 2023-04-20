@@ -21,6 +21,7 @@ class Backend:
             'wiki_contents_groupx')
         self.users_bucket = self.client.get_bucket('users_and_passwords_groupx')
         self.about_us_pictures = self.client.get_bucket('about-us-pictures')
+        self.reviews_bucket = self.client.get_bucket('reviews_groupx')
 
     def get_wiki_page(self, name):
         '''
@@ -86,11 +87,21 @@ class Backend:
             return page_names[1:]
         return result_pages
 
-    def upload(self, content, name):
+    def get_all_page_names_for_user(self, username):
+        all_blobs = self.wiki_content_bucket.list_blobs(prefix="pages/")
+        names = [
+            os.path.splitext(os.path.basename(blob.name))[0]
+            for blob in all_blobs
+            if blob.metadata and blob.metadata.get('username') == username
+        ]
+        return names
+
+    def upload(self, content, name, username="Testing"):
         '''
         Adding data to the bucket
         '''
         cur_blob = self.wiki_content_bucket.blob(f"pages/{name}")
+        cur_blob.metadata = {"username": username}
         cur_blob.upload_from_string(content)
 
     def sign_up(self, username, password):
@@ -165,7 +176,7 @@ class Backend:
         else:
             return res
 
-    def authenticate_upload(self, uploaded_file, f_name):
+    def authenticate_upload(self, uploaded_file, f_name, username):
         if not uploaded_file.filename.endswith('.txt'):
             return {'success': False, 'message': 'You can only have .txt files'}
         file_contents = uploaded_file.read()
@@ -179,6 +190,70 @@ class Backend:
         if not decoded_contents.strip():
             return {'success': False, 'message': 'File is empty!'}
         if len(f_name) < 1:
-            {'success': False, 'message': 'Please enter a file name!'}
-        self.upload(file_contents, f_name)
+            return {'success': False, 'message': 'Please enter a file name!'}
+        self.upload(file_contents, f_name, username)
         return {'success': True, 'message': 'File successfully uploaded!'}
+
+    def edit_page(self, content, name, username, og_fn):
+        '''
+        Replacing the original file (og_fn) with the newly edited title and content!
+        '''
+        og_blob = self.wiki_content_bucket.blob(
+            f"pages/{og_fn}")  # Get the original blob object
+        new_blob = self.wiki_content_bucket.copy_blob(
+            og_blob, self.wiki_content_bucket, f"pages/{name}"
+        )  # Copy the original blob to a new blob with the new name
+        og_blob.delete()  # Delete the original blob
+        new_blob.metadata = {
+            "username": username
+        }  # Update the new blob's metadata
+        new_blob.upload_from_string(content)  # Update the new blob's content
+        return
+
+    def authenticate_edit(self, uploaded_file, f_name, og_fn, username):
+        print("Hello!", uploaded_file, f_name, og_fn, username, f_name == '')
+        if not uploaded_file.filename.endswith('.txt'):
+            return {'success': False, 'message': 'You can only have .txt files'}
+        if len(f_name) < 1 or f_name == '':
+            return {
+                'success':
+                    False,
+                'message':
+                    'Please enter a file name or use previous page title!'
+            }
+        file_contents = uploaded_file.read()
+        try:
+            decoded_contents = file_contents.decode('utf-8')
+        except UnicodeDecodeError:
+            return {
+                'success': False,
+                'message': 'File is not in UTF-8 encoding!'
+            }
+        if not decoded_contents.strip():
+            return {'success': False, 'message': 'File is empty!'}
+        self.edit_page(file_contents, f_name, username, og_fn)
+        return {'success': True, 'message': 'Page updated successfully!'}
+
+    def del_page(self, page_name):
+        blob_to_del = self.wiki_content_bucket.blob(f"pages/{page_name}")
+        blob_to_del.delete()
+        return
+    def get_reviews(self, restaurant_name):
+        reviews_blob = self.reviews_bucket.blob(f"reviews/{restaurant_name}")
+        if not reviews_blob.exists():
+            return []
+        reviews_data = json.loads(reviews_blob.download_as_text())
+        return reviews_data
+
+    def add_review(self, restaurant_name, username, rating):
+        reviews = self.get_reviews(restaurant_name)
+        reviews.append({"username": username, "rating": int(rating)})
+        reviews_blob = self.reviews_bucket.blob(f"reviews/{restaurant_name}")
+        reviews_blob.upload_from_string(json.dumps(reviews))
+
+    def get_average_rating(self, restaurant_name):
+        reviews = self.get_reviews(restaurant_name)
+        if not reviews:
+            return 0
+        total_rating = sum(review["rating"] for review in reviews)
+        return total_rating / len(reviews)

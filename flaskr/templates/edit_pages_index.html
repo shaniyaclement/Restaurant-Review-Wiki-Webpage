@@ -1,0 +1,98 @@
+{% extends "main.html" %}
+
+{% block page_name %}
+  <title>Wiki Pages</title>
+{% endblock %}
+
+{% block content %}
+{% if error %}
+{% if show_popup %}
+    <div id="popup">
+        <p>{{ error }}</p>
+        <button onclick="closePopup()">Close</button>
+    </div>
+    <script>
+        function closePopup() {
+            var popup = document.getElementById("popup");
+            popup.style.display = "none";
+            const editUrl = `/?username={{ username }}`;
+            window.location.href = editUrl;
+        }
+    </script>
+{% else %}
+    <p>{{ error }}</p>
+{% endif %}
+{% endif %}
+  <div>
+    {% if instructions %}
+    <p1>Select a page to edit/remove from the pages you have uploaded to the wiki:</p1>
+    {% endif %}
+  <ul style="list-style: none; padding: 0;">
+    {% for page_name in page_names %}
+      <li>
+        <a href="#" id="{{ page_name }}" onclick='showPopup(event, "{{ page_name }}")'>{{ page_name }}</a>
+      </li>
+    {% endfor %}
+    <li id="list-end"></li>
+  </ul>
+  {% if instructions %}
+  <h5>**If no pages appear please begin by uploading a page to the wiki!**</h5>
+  {% endif %}
+
+  <div id="popup-container" style="position: relative;">
+    <div id="popup" style="display: none; position: absolute; z-index: 1; background-color: white; border: 1px solid black; padding: 10px; text-align: center;">
+      <p>Do you want to delete or edit "{{ current_page }}" page?</p>
+      <button onclick='handleDelete(current_page)'>Delete</button>
+      <button onclick='handleEdit(current_page)'>Edit</button>
+      <button onclick="hidePopup()">Close</button>
+    </div>
+  </div>
+</div>
+
+  <script>
+    let current_page = null;
+
+    function showPopup(event, pageName) {
+      event.preventDefault();
+      current_page = pageName;
+
+      const link = document.getElementById(pageName);
+      const popup = document.getElementById("popup");
+      const popupContainer = document.getElementById("popup-container");
+
+      popup.style.display = "block";
+      popupContainer.style.top = link.getBoundingClientRect().top + "px";
+      popupContainer.style.left = link.offsetLeft + "px";
+      popupContainer.style.width = popup.offsetWidth + "px";
+
+      const listEnd = document.getElementById("list-end");
+      listEnd.parentNode.insertBefore(popupContainer, listEnd.nextSibling);
+      
+      const currentPageElement = document.querySelector("#popup p");
+      currentPageElement.innerHTML = `Do you want to delete or edit "${current_page}" page?`;
+    }
+
+    function hidePopup() {
+      const popup = document.getElementById("popup");
+      popup.style.display = "none";
+      current_page = null;
+    }
+
+    function handleDelete(pageName) {
+      console.log("PageName:",pageName)
+      const confirmed = confirm(`Are you sure you want to delete "${pageName}"?`);
+
+      if (confirmed) {
+        const deleteUrl = `/del_page/${pageName}?username={{ username }}`;
+        window.location.href = deleteUrl;
+      } else {
+        hidePopup();
+      }
+    }
+
+    function handleEdit(pageName) {
+      const editUrl = `/edit_pages_content/${pageName}?username={{username}}`;
+      window.location.href = editUrl;
+    }
+  </script>
+{% endblock %}
