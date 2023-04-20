@@ -84,6 +84,50 @@ def test_get_all_page_names(wiki_content_bucket):
         cur_blob = wiki_content_bucket.blob(f"pages/{name}")
         cur_blob.delete()
 
+def test_filter_search(wiki_content_bucket):
+    '''
+    Testing the functionality that the function properly returns only the list of names that match given search
+    '''
+    backend = Backend()
+    names = ["test_page1", "test_page2", "page3"]
+    for name in names:
+        cur_blob = wiki_content_bucket.blob(f"pages/{name}")
+        if name == "test_page1":
+            cur_blob.upload_from_string("this is the most lovely steak i've had")
+        if name == "test_page2":
+            cur_blob.upload_from_string("i this steak is the best")
+        if name == "page3":
+            cur_blob.upload_from_string("test mmm love the burger. i staff was incredible")
+        else:
+            cur_blob.upload_from_string("test wiki page content")
+    
+    ''' 
+    if the search has no word/ phrase it returns all pages
+    '''
+    result_pages = ["test_page1", "test_page2", "page3"]
+    searched = ''
+    output = set(backend.filter_search(searched))
+    for page in result_pages:
+        assert page in output
+
+    ''' 
+    if the search has a word that is in some page titles and some content,
+    return match (in this case all) tests if checks both title and content
+    '''
+    searched = 'test'
+    output = set(backend.filter_search(searched))
+    for page in result_pages:
+        assert page in output
+   
+    ''' 
+    test if there is matches regardless of capitilization
+    '''
+    result_pages = ["test_page1", "test_page2"]
+    searched = 'THIS'
+    output = set(backend.filter_search(searched))
+    for page in result_pages:
+        assert page in output
+
 
 def test_upload(wiki_content_bucket):
     '''

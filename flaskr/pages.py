@@ -79,10 +79,7 @@ def make_endpoints(app, backend):
         '''
         searched = request.form['searched']
         username = request.args.get('username', default="")
-        page_names = backend.get_all_page_names()
-        for page_name in page_names:
-            if (searched.lower() not in (backend.get_wiki_page(page_name)).lower()):
-                page_names.remove(page_name)
+        page_names = backend.filter_search(searched)
         return render_template('search.html', searched=searched, page_names=page_names,
                                username=username)
 
@@ -178,5 +175,3 @@ def make_endpoints(app, backend):
                                page_name=page_name,
                                text_content=text_content,
                                username=username)
-
-
