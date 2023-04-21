@@ -1,0 +1,34 @@
+{% extends "main.html" %}
+
+{% block page_name %}
+<title>Search</title>
+{% endblock %}
+
+{% block content %}
+  <body>
+    {% if error %}
+    {% if show_popup %}
+        <div id="popup">
+            <h2>Error</h2>
+            <p>{{ error }}</p>
+            <button onclick="closePopup()">Close</button>
+        </div>
+        <script>
+            function closePopup() {
+                var popup = document.getElementById("popup");
+                popup.style.display = "none";
+            }
+        </script>
+    {% else %}
+        <p>{{ error }}</p>
+    {% endif %}
+    {% endif %}
+    <h1>Page Results...</h1>
+    <p> "{{searched}}"
+    <ul>
+    {% for page_name in page_names %}
+    <li><a href="/pages/{{ page_name }}?username={{username}}">{{ page_name }}</a></li>
+    {% endfor %}
+    </ul>
+  </body>
+{% endblock %}

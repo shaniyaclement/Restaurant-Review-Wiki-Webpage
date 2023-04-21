@@ -19,7 +19,8 @@ def make_endpoints(app, backend):
         '''
         username = request.args.get('username', default="")
         image_names = backend.get_images()
-        return render_template('about.html',
+        length = len(image_names)
+        return render_template('about.html', length=length,
                                image_names=image_names,
                                username=username)
 
@@ -71,6 +72,17 @@ def make_endpoints(app, backend):
             return render_template('login.html',
                                    error=error_message,
                                    show_popup=True)
+
+    @app.route("/search", methods=["POST"])
+    def search():
+        '''
+        Search route
+        '''
+        searched = request.form['searched']
+        username = request.args.get('username', default="")
+        page_names = backend.filter_search(searched)
+        return render_template('search.html', searched=searched, page_names=page_names,
+                               username=username)
 
     @app.route("/authenticate_new_user", methods=["POST"])
     def authenticate_new_user():
@@ -138,6 +150,7 @@ def make_endpoints(app, backend):
                 error="Please enter a name for the submission!",
                 show_popup=True,
                 username=username)
+
 
     @app.route('/pages')
     def pages():

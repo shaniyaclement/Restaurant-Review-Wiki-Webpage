@@ -83,9 +83,13 @@
             <a href="/logout?username={{username}}">Logout</a>&nbsp &nbsp
             {% else %}
             <a href="/login">Login</a>&nbsp &nbsp
-            <a href="/signup">Sign Up</a>
+            <a href="/signup">Sign Up</a>&nbsp &nbsp
             {% endif %}
-            </h3>
+            </h3>&nbsp &nbsp
+            <form method="POST" action="/search" class="d-flex">
+                <input class="form-control me-2" type="search" placeholder="Search a Phrase" aria-label="Search" name="searched">
+                <button class="btn btn-outline-secondary" type="submit">Search</button>
+            </form>
         </ul>
     </nav>
     {%endblock%}

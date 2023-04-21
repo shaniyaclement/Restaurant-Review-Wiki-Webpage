@@ -68,6 +68,25 @@ class Backend:
         return names[
             1:]  # os seems to add an extra "" at the top of the list, we simply avoid this in constant time
 
+    def filter_search(self, searched):
+        # list of page names
+        all_blobs = self.wiki_content_bucket.list_blobs(prefix="pages/")
+        page_names = [
+            os.path.splitext(os.path.basename(blob.name))[0]
+            for blob in all_blobs
+        ]
+        if searched.strip() == "":
+            return page_names[1:]
+        result_pages = []
+        for page_name in page_names[1:]:
+            blob = self.wiki_content_bucket.blob(f'pages/{page_name}')
+            content = blob.download_as_text()
+            if searched.lower() in content.lower() or searched.lower() in page_name.lower():
+                result_pages.append(page_name)
+        if len(result_pages) == 0:
+            return page_names[1:]
+        return result_pages
+
     def get_all_page_names_for_user(self, username):
         all_blobs = self.wiki_content_bucket.list_blobs(prefix="pages/")
         names = [
