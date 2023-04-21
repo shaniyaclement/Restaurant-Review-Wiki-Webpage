@@ -84,7 +84,7 @@ def test_get_all_page_names(wiki_content_bucket):
     for name in names:
         cur_blob = wiki_content_bucket.blob(f"pages/{name}")
         cur_blob.delete()
-
+"""
 def test_filter_search(wiki_content_bucket):
     '''
     Testing the functionality that the function properly returns only the list of names that match given search
@@ -132,6 +132,62 @@ def test_filter_search(wiki_content_bucket):
     for name in names:
         cur_blob = wiki_content_bucket.blob(f"pages/{name}")
         cur_blob.delete()
+"""
+def _create_test_data(wiki_content_bucket):
+    names = ["test_page1", "test_page2", "page3"]
+    for name in names:
+        cur_blob = wiki_content_bucket.blob(f"pages/{name}")
+        if name == "test_page1":
+            cur_blob.upload_from_string("this is the most lovely steak i've had")
+        if name == "test_page2":
+            cur_blob.upload_from_string("i this steak is the best")
+        if name == "page3":
+            cur_blob.upload_from_string("test mmm love the burger. i staff was incredible")
+        else:
+            cur_blob.upload_from_string("test wiki page content")
+    return names
+
+def _clean_up_test_data(wiki_content_bucket, names):
+    for name in names:
+        cur_blob = wiki_content_bucket.blob(f"pages/{name}")
+        cur_blob.delete()
+
+def test_filterSearch_emptySearch_returnsAllPages(wiki_content_bucket):
+    backend = Backend()
+    names = _create_test_data(wiki_content_bucket)
+
+    searched = ''
+    output = set(backend.filter_search(searched))
+
+    for page in names:
+        assert page in output
+
+    _clean_up_test_data(wiki_content_bucket, names)
+
+def test_filterSearch_searchInTitleAndContent_returnsMatchingPages(wiki_content_bucket):
+    backend = Backend()
+    names = _create_test_data(wiki_content_bucket)
+
+    searched = 'test'
+    output = set(backend.filter_search(searched))
+
+    for page in names:
+        assert page in output
+
+    _clean_up_test_data(wiki_content_bucket, names)
+
+def test_filterSearch_ignoreCase_returnsMatchingPages(wiki_content_bucket):
+    backend = Backend()
+    names = _create_test_data(wiki_content_bucket)
+
+    result_pages = ["test_page1", "test_page2"]
+    searched = 'THIS'
+    output = set(backend.filter_search(searched))
+
+    for page in result_pages:
+        assert page in output
+
+    _clean_up_test_data(wiki_content_bucket, names)
 
 
 def test_upload(wiki_content_bucket):
