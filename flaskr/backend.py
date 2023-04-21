@@ -75,7 +75,7 @@ class Backend:
             os.path.splitext(os.path.basename(blob.name))[0]
             for blob in all_blobs
         ]
-        if searched.replace(" ", "") == "":
+        if searched.strip() == "":
             return page_names[1:]
         result_pages = []
         for page_name in page_names[1:]:
